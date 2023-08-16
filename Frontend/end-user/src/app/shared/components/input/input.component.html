@@ -1,0 +1,7 @@
+<mat-form-field>
+  <mat-label>{{ data.label }}</mat-label>
+  <input [type]="data.type" matInput [formControl]="data.control" [errorStateMatcher]="data.errorStateMatcher" (blur)="blur()" [placeholder]="data.placeholder">
+  <ng-template let-error ngFor [ngForOf]="data.errors" ngProjectAs="mat-error">
+    <mat-error class="error-message" *ngIf="showError(error.key)">{{ error.serverError ? data.control.getError(error.key) : error.message  }}</mat-error>
+  </ng-template>
+</mat-form-field>

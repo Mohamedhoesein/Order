@@ -1,0 +1,16 @@
+import { MDBBtn } from "mdb-react-ui-kit"
+import { FormState, SubmitProps } from "../types"
+
+export const SubmitButton = <State extends FormState<[]>>({onSubmit, partialWidth = true, state, text}: SubmitProps<State>) => {
+    const classes = (partialWidth ? "offset-md-4 col-md-4 " : "") + "col-12";
+    return (
+        <MDBBtn
+         className={classes}
+         type="submit"
+         block={!partialWidth}
+         onClick={_ => {onSubmit({...state, disabled: true})}}
+         disabled={state.disabled}>
+            {text}
+        </MDBBtn>
+    )
+}

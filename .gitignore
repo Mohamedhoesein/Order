@@ -3,3 +3,4 @@ node_modules
 bin
 obj
 appsettings.Development.json
+appsettings.Test.json

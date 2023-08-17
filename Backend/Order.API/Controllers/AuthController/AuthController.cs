@@ -182,7 +182,7 @@ namespace Order.API.Controllers.AuthController
         public async Task<IActionResult> SignInEmployee([FromBody] Login login)
         {
             if ((await GetUserByEmail(login.Email)).Item1 != UserState.Employee)
-                return StatusCode(401, new {Error = ErrorType.Invalid.ToString()});
+                return StatusCode(401, new ErrorMessage {Error = ErrorType.Invalid.ToString()});
             return await BaseSignIn(login);
         }
 
@@ -202,7 +202,7 @@ namespace Order.API.Controllers.AuthController
         public async Task<IActionResult> SignInUser([FromBody] Login login)
         {
             if ((await GetUserByEmail(login.Email)).Item1 != UserState.User)
-                return StatusCode(401, new {Error = ErrorType.Invalid.ToString()});
+                return StatusCode(401, new ErrorMessage {Error = ErrorType.Invalid.ToString()});
             return await BaseSignIn(login);
         }
 
@@ -419,15 +419,22 @@ namespace Order.API.Controllers.AuthController
         [HttpPost("email/{id:int}/{code}")]
         public async Task<IActionResult> UpdateEmail([FromRoute] int id, [FromRoute] string code)
         {
+            using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 return NewStatusCode(401);
 
-            var result = await _userManager.ChangeEmailAsync(user, user.TempEmail, Decode(code));
-            if (!result.Succeeded)
+            var changeEmailResult = await _userManager.ChangeEmailAsync(user, user.TempEmail, Decode(code));
+            if (!changeEmailResult.Succeeded)
+                return NewStatusCode(401);
+
+            var changeUsernameResult = await _userManager.SetUserNameAsync(user, user.TempEmail);
+            if (!changeUsernameResult.Succeeded)
                 return NewStatusCode(401);
 
             await _signInManager.SignOutAsync();
+            transaction.Complete();
             return Ok();
         }
 
@@ -523,7 +530,7 @@ namespace Order.API.Controllers.AuthController
                 return StatusCode(401, new ErrorMessage {Error = ErrorType.Locked.ToString()});
             if (result.RequiresTwoFactor)
                 return StatusCode(401, new ErrorMessage {Error = ErrorType.TwoFactor.ToString()});
-            return StatusCode(401, new ErrorMessage {Error = ErrorType.Invalid.ToString()});
+            return StatusCode(401, new ErrorMessage {Error = result.ToJson()});
         }
 
         /// <summary>

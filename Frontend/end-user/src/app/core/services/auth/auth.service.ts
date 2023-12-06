@@ -1,18 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, Subject, retry, tap } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, retry, tap } from 'rxjs';
 import {
   Account,
   ChangePassword,
-  ChangePasswordError,
   ForgotPassword,
-  ForgotPasswordError,
   HttpOptions,
   LogIn,
-  LogInError,
   LoggedIn,
-  Register,
-  RegisterError
+  Register
 } from './types';
 import { environment } from '../../../../environments/environment';
 
@@ -32,13 +28,22 @@ export class AuthService {
   };
   public loggedInChanged: Subject<boolean> = new Subject<boolean>();
 
-  constructor(private _http: HttpClient) { }
+  constructor(private _http: HttpClient) {
+  }
 
   public loggedIn(): Observable<LoggedIn> {
     return this._http.get<LoggedIn>(
       `${this.apiUrl}logged-In`,
       this.defaultOptions
-    ).pipe(retry(1));
+    ).pipe(
+      retry(1),
+      tap({
+        next: (data: LoggedIn) => {
+          console.log('loggedIn', data.loggedIn);
+          this.loggedInChanged.next(data.loggedIn);
+        }
+      })
+    );
   }
 
   public login(email: string, password: string): Observable<LogIn> {
@@ -166,7 +171,7 @@ export class AuthService {
       retry(1),
       tap({
         next: () => {
-          this.loggedInChanged.next(false);
+          this.loggedIn().subscribe();
         }
       })
     );

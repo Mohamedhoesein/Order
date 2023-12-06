@@ -385,7 +385,15 @@ namespace Order.API.Controllers.AuthController
                 return NewStatusCode(403);
 
             if (user.Email != updateAccount.Email)
+            {
+                if (_userManager.Users.Any(user =>
+                        user.Email == updateAccount.Email ||
+                        user.TempEmail == updateAccount.Email
+                    )
+                )
+                    return NewStatusCode(409);
                 user.TempEmail = updateAccount.Email;
+            }
             var result = await DefaultUpdateAccount(user, new UpdateAccountEmployee
             {
                 Name = updateAccount.Name,
@@ -441,6 +449,9 @@ namespace Order.API.Controllers.AuthController
         /// <summary>
         /// Delete the currently logged in user.
         /// </summary>
+        /// <param name="deleteAccount">
+        /// The password of the user about to be deleted.
+        /// </param>
         /// <returns>
         /// An <see cref="OkResult"/> if the deletion was a success,
         /// an <see cref="ObjectResult"/> with a 401 status code if the user does not exist,
@@ -449,7 +460,7 @@ namespace Order.API.Controllers.AuthController
         [EnableCors(Cors.AllowFrontend)]
         [Authorize(Policy = Claims.AccountDeleteOwnClaim)]
         [HttpDelete]
-        public async Task<IActionResult> Delete()
+        public async Task<IActionResult> Delete([FromBody] DeleteAccount deleteAccount)
         {
             var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(id, out var intId))
@@ -457,6 +468,9 @@ namespace Order.API.Controllers.AuthController
 
             var user = await _userManager.FindByIdAsync(intId);
             if (user == null)
+                return NewStatusCode(401);
+
+            if (!await _userManager.CheckPasswordAsync(user, deleteAccount.Password))
                 return NewStatusCode(401);
 
             var result = await _userStore.DeleteAsync(user);
@@ -498,7 +512,7 @@ namespace Order.API.Controllers.AuthController
             };
             var result = await _userManager.CreateAsync(user, register.Password);
             if (!result.Succeeded)
-                return NewStatusCode(500);
+                return StatusCode(500, result.Errors);
 
             result = await _userManager.AddToRoleAsync(user, role);
             if (!result.Succeeded)
@@ -530,6 +544,8 @@ namespace Order.API.Controllers.AuthController
                 return StatusCode(401, new ErrorMessage {Error = ErrorType.Locked.ToString()});
             if (result.RequiresTwoFactor)
                 return StatusCode(401, new ErrorMessage {Error = ErrorType.TwoFactor.ToString()});
+            if (!result.IsNotAllowed)
+                return StatusCode(401, new ErrorMessage {Error = ErrorType.Invalid.ToString()});
             return StatusCode(401, new ErrorMessage {Error = result.ToJson()});
         }
 

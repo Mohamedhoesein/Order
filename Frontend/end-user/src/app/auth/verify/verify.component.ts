@@ -29,12 +29,12 @@ export class VerifyComponent implements OnInit {
   }
 
   private success(): void {
-    this._message.show('Account verified successfully');
+    this._message.show('Account verified successfully.');
     this._router.navigate(['/login']);
   }
 
   private error(): void {
-    this._message.show('Account verification failed');
+    this._message.show('Account verification failed.');
     this._router.navigate(['/']);
   }
 }

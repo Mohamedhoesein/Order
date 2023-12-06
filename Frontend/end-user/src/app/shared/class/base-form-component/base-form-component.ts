@@ -11,6 +11,7 @@ export type ErrorMessage = {
 }
 
 export type Control = {
+  name: string;
   label: string;
   type: InputTypes;
   control: FormControl;
@@ -21,6 +22,7 @@ export type Control = {
 }
 
 export type ControlInfo = {
+  id?: string,
   name: string,
   hasServerError?: boolean,
   placeHolder: string
@@ -68,10 +70,11 @@ export abstract class BaseFormComponent {
     );
   }
 
-  public createTextControl({ name, hasServerError, placeHolder }: ControlInfo): Control {
+  public createTextControl({ id, name, hasServerError, placeHolder }: ControlInfo): Control {
     const processedName: string = this.processName(name);
     hasServerError = hasServerError ?? true;
     return {
+      name: id ?? name,
       label: processedName,
       type: 'text',
       control: BaseFormComponent.getTextFormControl(),
@@ -82,10 +85,11 @@ export abstract class BaseFormComponent {
     };
   }
 
-  public createEmailControl({ name, hasServerError, placeHolder }: ControlInfo): Control {
+  public createEmailControl({ id, name, hasServerError, placeHolder }: ControlInfo): Control {
     const processedName: string = this.processName(name);
     hasServerError = hasServerError ?? true;
     return {
+      name: id ?? name,
       label: processedName,
       type: 'email',
       control: BaseFormComponent.getEmailFormControl(),
@@ -96,10 +100,11 @@ export abstract class BaseFormComponent {
     };
   }
 
-  public createPasswordControl({ name, hasServerError, placeHolder }: ControlInfo): Control {
+  public createPasswordControl({ id, name, hasServerError, placeHolder }: ControlInfo): Control {
     const processedName: string = this.processName(name);
     hasServerError = hasServerError ?? true;
     return {
+      name: id ?? name,
       label: processedName,
       type: 'password',
       control: BaseFormComponent.getPasswordFormControl(),
@@ -110,7 +115,7 @@ export abstract class BaseFormComponent {
     };
   }
 
-  public createExtendedRequiredControl({ name, hasServerError, placeHolder, validators, type }: ExtendedControlInfo): Control {
+  public createExtendedRequiredControl({ id, name, hasServerError, placeHolder, validators, type }: ExtendedControlInfo): Control {
     const processedName: string = this.processName(name);
     hasServerError = hasServerError ?? true;
     const control: FormControl<string> = this.createExtendedFormControl(BaseFormComponent.getTextFormControl(), validators.map(validator => validator.validator));
@@ -124,6 +129,7 @@ export abstract class BaseFormComponent {
       });
     });
     return {
+      name: id ?? name,
       label: processedName,
       type: type,
       control: control,
@@ -212,7 +218,7 @@ export abstract class BaseFormComponent {
     return {
       id: id,
       key: 'required',
-      message: `${name} is required`,
+      message: `${name} is required.`,
       serverError: false
     }
   }
@@ -221,7 +227,7 @@ export abstract class BaseFormComponent {
     return {
       id: id,
       key: 'email',
-      message: 'Please enter a valid email address',
+      message: 'Please enter a valid email address.',
       serverError: false
     }
   }
@@ -230,7 +236,7 @@ export abstract class BaseFormComponent {
     return {
       id: id,
       key: 'minlength',
-      message: `${name} must be at least ${length} characters long`,
+      message: `${name} must be at least ${length} characters long.`,
       serverError: false
     }
   }
@@ -239,7 +245,7 @@ export abstract class BaseFormComponent {
     return {
       id: id,
       key: 'pattern',
-      message: `Password must have a lower and upper case letter, digit, and special character`,
+      message: `Password must have a lower and upper case letter, digit, and special character.`,
       serverError: false
     }
   }

@@ -417,12 +417,20 @@ namespace Order.Test
         /// <summary>
         /// Delete an account.
         /// </summary>
+        /// <param name="password">
+        /// The password of the user about to be logged out.
+        /// </param>
         /// <returns>
         /// The <see cref="HttpResponseMessage"/> representing the result of the deletion.
         /// </returns>
-        public async Task<HttpResponseMessage> DeleteAccount()
+        public async Task<HttpResponseMessage> DeleteAccount(string password)
         {
-            return await DeleteAsync("auth");
+            return await DeleteAsync(
+                "auth",
+                JsonContent.Create(
+                    new DeleteAccount { Password = password }
+                )
+            );
         }
 
         /// <summary>

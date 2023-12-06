@@ -23,7 +23,7 @@ export class RegisterComponent extends BaseFormComponent {
     placeHolder: '1234 Main St'
   });
   private _emailFormControl: Control = super.createEmailControl({
-    name: 'emailAddress',
+    name: 'email',
     placeHolder: 'example@example.com'
   });
   private _passwordFormControl: Control = super.createPasswordControl({
@@ -35,7 +35,7 @@ export class RegisterComponent extends BaseFormComponent {
     placeHolder: '**********',
     validators: [{
       key: 'passwordMismatch',
-      message: 'Passwords do not match',
+      message: 'Please retype the password.',
       validator: this.validatePasswordConfirmation.bind(this)
     }],
     type: 'password'

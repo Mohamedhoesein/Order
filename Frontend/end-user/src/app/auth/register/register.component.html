@@ -9,7 +9,7 @@
       <app-input [data]="addressFormControl"/>
       <app-input [data]="passwordFormControl"/>
       <app-input [data]="confirmPasswordFormControl"/>
-      <button mat-raised-button type="submit" color="primary" [disabled]="!valid">Register</button>
+      <button id="register-submit" mat-raised-button type="submit" color="primary" [disabled]="!valid()">Register</button>
     </form>
   </mat-card-content>
 </mat-card>

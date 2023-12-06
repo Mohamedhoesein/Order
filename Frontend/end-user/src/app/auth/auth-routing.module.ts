@@ -8,13 +8,14 @@ import { ChangedPasswordComponent } from './changed-password/changed-password.co
 import { VerifyComponent } from './verify/verify.component';
 import { UpdateAccountComponent } from './update-account/update-account.component';
 import { UpdateEmailComponent } from './update-email/update-email.component';
+import { authGuard } from './auth-guard/auth.guard';
 
 const routes: Routes = [
   {path: 'login', component: LoginComponent},
   {path: 'logout', component: LogoutComponent},
   {path: 'register', component: RegisterComponent},
   {path: 'forgot-password', component: ForgotPasswordComponent},
-  {path: 'account', component: UpdateAccountComponent},
+  {path: 'account', component: UpdateAccountComponent, canActivate: [authGuard]},
   {path: 'change-password/:id/:code', component: ChangedPasswordComponent},
   {path: 'verify/:id/:code', component: VerifyComponent},
   {path: 'email/:id/:code', component: UpdateEmailComponent}

@@ -246,6 +246,15 @@ namespace Order.Test.Controllers.AuthController
         }
 
         /// <summary>
+        /// Log out after every test.
+        /// </summary>
+        [TestCleanup]
+        public async Task LogOut()
+        {
+            await _client.PostAsync("auth/logout");
+        }
+
+        /// <summary>
         /// Dispose of the underlying <see cref="TestServer"/>, and <see cref="CookieHttpClient"/>.
         /// Also delete the database, and delete the files associated with the emails.
         /// </summary>

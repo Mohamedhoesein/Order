@@ -344,6 +344,15 @@ namespace Order.Test.Controllers.AuthController
             var verifyResult = await _client.ChangePassword(Util.NewPassword, Util.NewPassword, id, code);
             Assert.AreEqual(HttpStatusCode.Unauthorized, verifyResult.StatusCode);
         }
+
+        /// <summary>
+        /// Log out after every test.
+        /// </summary>
+        [TestCleanup]
+        public async Task LogOut()
+        {
+            await _client.PostAsync("auth/logout");
+        }
         
         /// <summary>
         /// Dispose of the underlying <see cref="TestServer"/>, and <see cref="CookieHttpClient"/>.

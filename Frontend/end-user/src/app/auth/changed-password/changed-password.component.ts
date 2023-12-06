@@ -23,7 +23,7 @@ export class ChangedPasswordComponent extends BaseFormComponent {
     placeHolder: '**********',
     validators: [{
       key: 'passwordMismatch',
-      message: 'Passwords do not match',
+      message: 'Passwords do not match.',
       validator: this.validatePasswordConfirmation.bind(this)
     }],
     type: 'password'

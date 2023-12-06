@@ -24,7 +24,7 @@ export class UpdateAccountComponent extends BaseFormComponent implements OnInit 
     placeHolder: '1234 Main St'
   });
   private _emailFormControl: Control = super.createEmailControl({
-    name: 'emailAddress',
+    name: 'email',
     placeHolder: 'example@example.com'
   });
   private _passwordFormControl: Control = super.createPasswordControl({

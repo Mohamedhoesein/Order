@@ -14,7 +14,7 @@ import { ForgotPasswordError } from '../../core/services/auth/types';
 })
 export class ForgotPasswordComponent extends BaseFormComponent {
   private _emailFormControl: Control = super.createEmailControl({
-    name: 'emailAddress',
+    name: 'email',
     placeHolder: 'example@example.com'
   });
 

@@ -14,7 +14,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class LoginComponent extends BaseFormComponent {
   private _emailFormControl: Control = super.createEmailControl({
-    name: 'emailAddress',
+    name: 'email',
     placeHolder: 'example@example.com'
   });
   private _passwordFormControl: Control = super.createPasswordControl({

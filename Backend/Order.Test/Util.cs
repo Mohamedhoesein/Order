@@ -1,19 +1,13 @@
 ﻿using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
-using Newtonsoft.Json;
 using Order.API;
 using Order.API.Context;
-using Order.API.Controllers.AuthController.Models;
 
 namespace Order.Test
 {
@@ -103,18 +97,19 @@ namespace Order.Test
         /// </summary>
         public static void DeleteEmails()
         {
-            var directories = new DirectoryInfo("./emails")
-                .GetDirectories();
-            foreach (var directory in directories)
+            try
             {
-                try
+                
+                var directories = new DirectoryInfo("./emails")
+                    .GetDirectories();
+                foreach (var directory in directories)
                 {
                     directory.Delete(true);
                 }
-                catch
-                {
-                    // ignored
-                }
+            }
+            catch
+            {
+                // ignored
             }
         }
     }

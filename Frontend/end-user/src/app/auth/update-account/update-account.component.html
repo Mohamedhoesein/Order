@@ -8,9 +8,9 @@
       <app-input [data]="emailFormControl"/>
       <app-input [data]="addressFormControl"/>
       <app-input [data]="passwordFormControl"/>
-      <button mat-raised-button type="submit" color="primary" [disabled]="!valid">Update Account</button>
+      <button id="update-account-submit" mat-raised-button type="submit" color="primary" [disabled]="!valid()">Update Account</button>
     </form>
-    <button style="float: left; margin-top: 1rem;" mat-raised-button color="warn" (click)="openDialog()">Delete Account</button>
-    <button style="margin-top: 1rem;" mat-raised-button color="accent" (click)="changePassword()">Change Password</button>
+    <button id="show-delete-account" style="float: left; margin-top: 1rem;" mat-raised-button color="warn" (click)="openDialog()">Delete Account</button>
+    <button id="change-password" style="margin-top: 1rem;" mat-raised-button color="accent" (click)="changePassword()">Change Password</button>
   </mat-card-content>
 </mat-card>

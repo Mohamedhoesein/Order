@@ -6,8 +6,8 @@
     <form (ngSubmit)="onSubmit()">
       <app-input [data]="emailFormControl"/>
       <app-input [data]="passwordFormControl"/>
-      <a href="forgot-password">Forgot password?</a>
-      <button mat-raised-button type="submit" color="primary" [disabled]="!valid">Login</button>
+      <a id="forgot-password" href="forgot-password">Forgot password?</a>
+      <button id="login-submit" mat-raised-button type="submit" color="primary" [disabled]="!valid()">Login</button>
     </form>
   </mat-card-content>
 </mat-card>

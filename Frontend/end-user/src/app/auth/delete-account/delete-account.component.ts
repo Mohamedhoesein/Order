@@ -15,6 +15,7 @@ import { DeleteAccountError } from 'src/app/core/services/auth/types';
 })
 export class DeleteAccountComponent extends BaseFormComponent {
   private _passwordFormControl: Control = super.createPasswordControl({
+    id: 'deletePassword',
     name: 'password',
     placeHolder: '**********'
   });

@@ -30,12 +30,12 @@ export class UpdateEmailComponent {
 
 
   private success(): void {
-    this._message.show('Email updated successfully');
+    this._message.show('Email updated successfully.');
     this._router.navigate(['/login']);
   }
 
   private error(): void {
-    this._message.show('Email update failed');
+    this._message.show('Email update failed.');
     this._router.navigate(['/']);
   }
 }

@@ -1,5 +1,5 @@
 name: End User Tests
-on: [pull_request,workflow_dispatch]
+on: [pull_request, workflow_dispatch]
 jobs:
   end-user-test:
     runs-on: ubuntu-latest
@@ -27,19 +27,36 @@ jobs:
         with:
           dotnet-version: '6.0.x'
       - name: Install EF
-        run: dotnet tool install dotnet-ef
-        shell: bash
+        run: dotnet tool install --global dotnet-ef
+      - name: Restore
+        run: dotnet restore ./Backend/Order.API/Order.API.csproj
       - name: Initialise database
-        run: dotnet ef database --project "./Backed/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;"
+        run: dotnet ef database update --project "./Backend/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;"
+        env:
+          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
+          EmailConfiguration__Host: smtp.gmail.com
+          EmailConfiguration__Port: 465
+          EmailConfiguration__SSL: true
+          EmailConfiguration__DisplayName: Order
+          EmailConfiguration__Email: rmohamedhoesein3@gmail.com
+          EmailConfiguration__Password: ${{ secrets.EMAIL_PASSWORD }}
+          EmailConfiguration__DropEmails: true
+          EmailConfiguration__SendEmails: false
+          UrlConfiguration__Admin: http://localhost:5000
+          UrlConfiguration__EndUser: http://localhost:5001
+      - name: NPM install
+        run: npm --prefix ./Frontend/end-user install
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: dotnet run --project "./Backed/Order.API/Order.API.csproj",npm --prefix ./Frontend/end-user start
-          wait-on: 'http://localhost:5001'
+          working-directory: ./Frontend/end-user
+          start: dotnet run --project ../../Backend/Order.API/Order.API.csproj,npm start
+          wait-on: 'http://localhost:5001/'
           record: true
           parallel: false
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.PROJECT_ID }}
           ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
           EmailConfiguration__Host: smtp.gmail.com
           EmailConfiguration__Port: 465

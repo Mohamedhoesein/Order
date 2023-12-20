@@ -1,0 +1,53 @@
+name: End User Tests
+on: [pull_request,workflow_dispatch]
+jobs:
+  end-user-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1]
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+      - name: Install EF
+        run: dotnet tool install dotnet-ef
+        shell: bash
+      - name: Initialise database
+        run: dotnet ef database --project "./Backed/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;"
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          start: dotnet run --project "./Backed/Order.API/Order.API.csproj",npm --prefix ./Frontend/end-user start
+          wait-on: 'http://localhost:5001'
+          record: true
+          parallel: false
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
+          EmailConfiguration__Host: smtp.gmail.com
+          EmailConfiguration__Port: 465
+          EmailConfiguration__SSL: true
+          EmailConfiguration__DisplayName: Order
+          EmailConfiguration__Email: rmohamedhoesein3@gmail.com
+          EmailConfiguration__Password: ${{ secrets.EMAIL_PASSWORD }}
+          EmailConfiguration__DropEmails: true
+          EmailConfiguration__SendEmails: false
+          UrlConfiguration__Admin: http://localhost:5000
+          UrlConfiguration__EndUser: http://localhost:5001

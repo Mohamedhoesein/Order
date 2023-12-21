@@ -810,6 +810,6 @@ describe('update-account.cy.ts', () => {
 
   afterEach(() => {
       cy.visit('/logout');
-      cy.exec('npm run reload')
+      cy.exec('npm run linux-reload')
   });
 });

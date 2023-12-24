@@ -103,4 +103,9 @@ describe('forgot-password.cy.ts', () => {
 
     cy.contains('Please enter a valid email address.');
   });
+
+  afterEach(() => {
+      cy.visit('/logout');
+      cy.task('resetDatabase');
+  });
 });

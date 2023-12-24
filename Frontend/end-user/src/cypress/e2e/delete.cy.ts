@@ -16,6 +16,7 @@ describe('delete.cy.ts', () => {
     cy.get('#register-submit').click();
   
     cy.task<LastEmail>('getLastEmail', {name: 'TestUser',email: 'test1@test.com'}).then(data => {
+      console.log(data);
       cy.wrap(data).its('type').should('eq', 'verify');
       cy.wrap(data).its('id').should('not.eq', '1');
       cy.wrap(data).its('code').should('not.eq', '');
@@ -314,6 +315,6 @@ describe('delete.cy.ts', () => {
 
   afterEach(() => {
       cy.visit('/logout');
-      cy.exec('npm run linux-reload')
+      cy.task('resetDatabase');
   });
 });

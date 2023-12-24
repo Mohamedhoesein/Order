@@ -132,4 +132,9 @@ describe('changed-password.cy.ts', () => {
 
     cy.get('div:has(#password)').contains('Password must be at least 10 characters long.');
   });
+
+  afterEach(() => {
+      cy.visit('/logout');
+      cy.task('resetDatabase');
+  });
 });

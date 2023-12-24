@@ -10,4 +10,9 @@ describe('verify.cy.ts', () => {
     cy.visit('/verify/123/abc');
     cy.contains('Account verification failed.');
   });
+
+  afterEach(() => {
+      cy.visit('/logout');
+      cy.task('resetDatabase');
+  });
 });

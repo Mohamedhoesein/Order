@@ -5,3 +5,4 @@ obj
 appsettings.Development.json
 appsettings.Test.json
 dbpassword
+cypress.env.json

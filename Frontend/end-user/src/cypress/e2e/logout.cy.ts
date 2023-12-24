@@ -40,4 +40,9 @@ describe('logout.cy.ts', () => {
       cy.contains('Log in');
     });
   });
+
+  afterEach(() => {
+      cy.visit('/logout');
+      cy.task('resetDatabase');
+  });
 });

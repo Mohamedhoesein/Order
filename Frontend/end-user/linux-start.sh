@@ -1,6 +1,5 @@
 {
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-    PASSWORD=$(<$SCRIPT_DIR/src/cypress/util/dbpassword)
+    PASSWORD=$(<dbpassword)
 
     dotnet ef database update \
         --project "../../Backend/Order.API/Order.API.csproj" \
@@ -10,11 +9,15 @@
         --project "../../Backend/Order.API/Order.API.csproj" &
     api="$!"
 
-    npm run start &
+    npm ng serve &
     npm="$!"
     read -s -n 1
+    killall Order.API
+    kill -9 $api
+    kill -9 $npm
 } ||
 {
-    kill $api
-    kill $npm
+    killall Order.API
+    kill -9 $api
+    kill -9 $npm
 }

@@ -6,8 +6,6 @@ try
         --project "../../Backend/Order.API/Order.API.csproj" `
         --connection "User ID=postgres;Password='$password';Host=localhost;Port=5432;Database=Order.Test.EndUser;"
 
-    . $PSScriptRoot/windows-reload.ps1
-
     $global:api = Start-Process `
         -FilePath "dotnet" `
         -ArgumentList "run", `

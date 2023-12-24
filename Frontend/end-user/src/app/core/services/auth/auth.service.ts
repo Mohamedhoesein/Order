@@ -39,7 +39,6 @@ export class AuthService {
       retry(1),
       tap({
         next: (data: LoggedIn) => {
-          console.log('loggedIn', data.loggedIn);
           this.loggedInChanged.next(data.loggedIn);
         }
       })

@@ -33,6 +33,11 @@ jobs:
       - name: Initialise database
         run: dotnet ef database update --project "./Backend/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;"
         env:
+          CYPRESS_PGUSER: postgres
+          CYPRESS_PGPASSWORD: postgres
+          CYPRESS_PGHOST: localhost
+          CYPRESS_PGPORT: '5432'
+          CYPRESS_PGDATABASE: Order.Test.EndUser
           ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
           EmailConfiguration__Host: smtp.gmail.com
           EmailConfiguration__Port: 465

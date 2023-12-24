@@ -10,4 +10,9 @@ describe('update-email.cy.ts', () => {
     cy.visit('/email/123/abc');
     cy.contains('Email update failed.');
   });
+
+  afterEach(() => {
+      cy.visit('/logout');
+      cy.task('resetDatabase');
+  });
 });

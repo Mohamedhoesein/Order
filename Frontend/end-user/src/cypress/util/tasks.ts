@@ -18,7 +18,6 @@ export interface env {
 }
 
 export const internalResetDatabase = async (environment: env): Promise<void> => {
-    console.log(environment);
     const client = new Client({
         user: environment['PGUSER'] ?? '',
         password: environment['PGPASSWORD'] ?? '',

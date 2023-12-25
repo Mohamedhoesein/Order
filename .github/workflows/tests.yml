@@ -108,6 +108,7 @@ jobs:
           wait-on: 'http://localhost:5000/'
           record: true
           parallel: false
+          browser: chrome
         env:
           CYPRESS_PGUSER: 'postgres'
           CYPRESS_PGPASSWORD: 'postgres'
@@ -181,6 +182,7 @@ jobs:
           wait-on: 'http://localhost:5001/'
           record: true
           parallel: false
+          browser: chrome
         env:
           CYPRESS_PGUSER: 'postgres'
           CYPRESS_PGPASSWORD: 'postgres'

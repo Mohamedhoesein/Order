@@ -17,8 +17,8 @@ describe('update-account.cy.ts', () => {
         cy.get('#forgot-password').click();
         cy.contains('An email has been send.');
 
-        cy.task<LastEmail>('getLastEmail', {name: 'TestAccount', email: 'test1@test.com'}).then(data => {
-            cy.wrap(data).its('type').should('eq', 'forgot-password');
+        cy.task<LastEmail>('getLastEmail', {name: 'TempAdmin', email: 'test@test.com'}).then(data => {
+            cy.wrap(data).its('type').should('eq', 'change-password');
         });
     });
 

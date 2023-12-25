@@ -747,7 +747,7 @@ namespace Order.API.Controllers.AuthController
         {
             try
             {
-                Convert.FromBase64String(base64);
+                WebEncoders.Base64UrlDecode(base64);
                 return true;
             }
             catch (Exception)

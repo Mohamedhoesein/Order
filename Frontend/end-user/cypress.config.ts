@@ -9,7 +9,6 @@ export default defineConfig({
     fixturesFolder: 'src/cypress/fixture',
     baseUrl: 'http://localhost:5001',
     setupNodeEvents: (on, config) => {
-      console.log('setupNodeEvents', config);
       on('task', {
         getLastEmail
       }),

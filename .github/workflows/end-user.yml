@@ -50,7 +50,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           working-directory: ./Frontend/end-user
-          start: dotnet run --project ../../Backend/Order.API/Order.API.csproj,npm start
+          start: dotnet run --project ../../Backend/Order.API/Order.API.csproj --EmailConfiguration:DropEmailDirectory="$(pwd)/src/cypress/email",npm start
           wait-on: 'http://localhost:5001/'
           record: true
           parallel: false

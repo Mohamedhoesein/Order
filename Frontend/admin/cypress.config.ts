@@ -1,5 +1,5 @@
 import { defineConfig } from 'cypress';
-import { getLastEmail } from './src/cypress/util/tasks';
+import { getLastEmail, internalResetDatabase } from './src/cypress/util/tasks';
 
 export default defineConfig({
   e2e: {
@@ -7,9 +7,15 @@ export default defineConfig({
     supportFile: 'src/cypress/support/e2e.{js,jsx,ts,tsx}',
     fixturesFolder: 'src/cypress/fixture',
     baseUrl: 'http://localhost:5000',
-    setupNodeEvents: (on, _) => {
+    setupNodeEvents: (on, config) => {
       on('task', {
         getLastEmail
+      });
+      on('task', {
+        async resetDatabase() {
+          await internalResetDatabase(config.env)
+          return null;
+        }
       });
     },
   }

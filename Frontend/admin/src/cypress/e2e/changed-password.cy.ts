@@ -120,4 +120,9 @@ describe('changed-password.cy.ts', () => {
 
         cy.get('div:has(#confirmPassword)').contains('Please give a password.');
     });
+
+    afterEach(() => {
+        cy.visit('/logout');
+        cy.task('resetDatabase');
+    });
 });

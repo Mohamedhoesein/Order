@@ -14,4 +14,9 @@ describe('verify.cy.ts', () => {
         cy.contains('An error occurred, please try again.');
         cy.url().should('eq', `${BASE_URL}/login`);
     });
+
+    afterEach(() => {
+        cy.visit('/logout');
+        cy.task('resetDatabase');
+    });
 });

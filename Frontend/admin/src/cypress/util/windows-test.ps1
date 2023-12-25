@@ -1,12 +1,10 @@
 try
 {
-    $password=Get-Content -Path $PSScriptRoot/dbpassword
+    $password=Get-Content -Path ./dbpassword
 
     dotnet ef database update `
         --project "../../Backend/Order.API/Order.API.csproj" `
         --connection "User ID=postgres;Password='$password';Host=localhost;Port=5432;Database=Order.Test.Admin;"
-
-    . $PSScriptRoot/windows-reload.ps1
 
     $global:api = Start-Process `
         -FilePath "dotnet" `
@@ -30,5 +28,5 @@ finally
     Stop-Process -Id (Get-NetTCPConnection -LocalPort 7058).OwningProcess
     Stop-Process -Id (Get-NetTCPConnection -LocalPort 5001).OwningProcess
 
-    $env:PGPASSWORD=Get-Content -Path $PSScriptRoot/dbpassword; psql -U postgres --command="DROP DATABASE `"`"Order.Test.Admin`"`";"
+    $env:PGPASSWORD=Get-Content -Path ./dbpassword; psql -U postgres --command="DROP DATABASE `"`"Order.Test.Admin`"`";"
 }

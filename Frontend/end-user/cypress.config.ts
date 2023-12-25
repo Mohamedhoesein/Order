@@ -11,13 +11,13 @@ export default defineConfig({
     setupNodeEvents: (on, config) => {
       on('task', {
         getLastEmail
-      }),
+      });
       on('task', {
         async resetDatabase() {
           await internalResetDatabase(config.env)
           return null;
         }
-      })
+      });
     }
   },
   

@@ -1,5 +1,6 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
+import { Client } from 'pg';
 
 export interface LastEmailArguments {
     name: string;
@@ -10,6 +11,36 @@ export interface LastEmail {
     type: 'verify' | 'change-password' | 'email' | 'unknown';
     id: string;
     code: string;
+}
+
+export interface env {
+    [key: string]: any;
+}
+
+export const internalResetDatabase = async (environment: env): Promise<void> => {
+    const client = new Client({
+        user: environment['PGUSER'] ?? '',
+        password: environment['PGPASSWORD'] ?? '',
+        host: environment['PGHOST'] ?? '',
+        port: parseInt(environment['PGPORT'] ?? '5432'),
+        database: environment['PGDATABASE'] ?? ''
+    });
+    client.connect();
+    await client.query(
+        'TRUNCATE "AspNetUserClaims" RESTART IDENTITY CASCADE;' +
+        'TRUNCATE "AspNetUserLogins" RESTART IDENTITY CASCADE;' +
+        'TRUNCATE "AspNetUserRoles" RESTART IDENTITY CASCADE;' +
+        'TRUNCATE "AspNetUserTokens" RESTART IDENTITY CASCADE;' +
+        'TRUNCATE "AspNetUsers" RESTART IDENTITY CASCADE;' +
+
+        'INSERT INTO "AspNetUsers" ("Name", "Address", "UserName", "NormalizedUserName", "Email", "NormalizedEmail", "EmailConfirmed", "PasswordHash", "SecurityStamp", "ConcurrencyStamp", "PhoneNumberConfirmed", "TwoFactorEnabled", "LockoutEnabled", "AccessFailedCount")' +
+        'VALUES (\'TempAdmin\', \'Address\', \'test@test.com\', \'TEST@TEST.COM\', \'test@test.com\', \'TEST@TEST.COM\', true, \'AQAAAAEAACcQAAAAEIj9FzLn96pa8OlStBMrYAgEUenp56bUarbToERhE5NPCTn1EDiBdw7ff0VDJiUjnA==\', \'BVVSLPHREZXATUD2QOIVYZS6FZYNJRJY\', \'4e1124c2-4ef4-40a3-b211-2e9fa2b0099f\', false, false, false, 0);' +
+
+        'INSERT INTO "AspNetUserRoles" ("UserId", "RoleId")' +
+        'VALUES (1, 1);'
+    );
+    await client.end();
+    return Promise.resolve();
 }
 
 export const getLastEmail = (info: LastEmailArguments): LastEmail => {

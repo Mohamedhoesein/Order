@@ -1,6 +1,6 @@
 try
 {
-    $password=Get-Content -Path $PSScriptRoot/src/cypress/util/dbpassword
+    $password=Get-Content -Path $PSScriptRoot/dbpassword
 
     dotnet ef database update --project "../../Backend/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='$password';Host=localhost;Port=5432;Database=Order.API;"
 

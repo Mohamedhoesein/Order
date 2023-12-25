@@ -11,7 +11,7 @@
         --EmailConfiguration:DropEmailDirectory="$(pwd)/src/cypress/email" &
     api="$!"
 
-    ng serve &
+    npm run dev &
     npm="$!"
 
     npm run cypress:open

@@ -1,6 +1,7 @@
-import fs from 'fs';
-import path from 'path';
-import { Client } from 'pg';
+import * as fs from 'fs';
+import * as path from 'path';
+import pkg from 'pg';
+const { Client } = pkg;
 
 export interface LastEmailArguments {
     name: string;

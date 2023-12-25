@@ -26,8 +26,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '6.0.x'
-      - name: test
-        run: echo $(pwd) && ls -la
       - name: Install EF
         run: dotnet tool install --global dotnet-ef
       - name: Restore
@@ -73,5 +71,6 @@ jobs:
           EmailConfiguration__Password: ${{ secrets.EMAIL_PASSWORD }}
           EmailConfiguration__DropEmails: true
           EmailConfiguration__SendEmails: false
+          EmailConfiguration__DropEmailDirectory: ${{ github.workspace }}/Frontend/end-user/src/cypress/email
           UrlConfiguration__Admin: http://localhost:5000
           UrlConfiguration__EndUser: http://localhost:5001

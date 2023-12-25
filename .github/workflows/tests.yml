@@ -104,8 +104,8 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           working-directory: ./Frontend/admin
-          start: dotnet run --project ../../Backend/Order.API/Order.API.csproj,npm start
-          wait-on: 'http://localhost:5001/'
+          start: dotnet run --project ../../Backend/Order.API/Order.API.csproj,npm run dev
+          wait-on: 'http://localhost:5000/'
           record: true
           parallel: false
         env:

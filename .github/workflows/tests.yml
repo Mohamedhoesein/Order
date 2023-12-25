@@ -113,10 +113,10 @@ jobs:
           CYPRESS_PGPASSWORD: 'postgres'
           CYPRESS_PGHOST: 'localhost'
           CYPRESS_PGPORT: '5432'
-          CYPRESS_PGDATABASE: 'Order.Test.EndUser'
+          CYPRESS_PGDATABASE: 'Order.Test.Admin'
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           CYPRESS_PROJECT_ID: ${{ secrets.PROJECT_ID }}
-          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
+          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;
           EmailConfiguration__Host: smtp.gmail.com
           EmailConfiguration__Port: 465
           EmailConfiguration__SSL: true

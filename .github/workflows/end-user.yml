@@ -41,7 +41,7 @@ jobs:
           UrlConfiguration__Admin: http://localhost:5000
           UrlConfiguration__EndUser: http://localhost:5001
       - name: Create Settings
-        run: touch ./Backend/Order.Test/appsettings.Test.json && echo "{\"ConnectionStrings\": {\"OrderContextConnection\": \"$ConnectionStrings__OrderContextConnection\"},\"EmailConfiguration\": {\"Host\": \"$EmailConfiguration__Host\",\"Port\": $EmailConfiguration__Port,\"SSL\": $EmailConfiguration__SSL,\"DisplayName\": \"$EmailConfiguration__DisplayName\",\"Email\": \"$EmailConfiguration__Email\",\"Password\": \"$EmailConfiguration__Password\",\"DropEmails\": $EmailConfiguration__DropEmails,\"SendEmails\": $EmailConfiguration__SendEmails},\"UrlConfiguration\": {\"Admin\": \"$UrlConfiguration__Admin\",\"EndUser\": \"$UrlConfiguration__EndUser\"}}" > ./Backend/Order.Test/appsettings.Test.json
+        run: echo "{\"ConnectionStrings\":{\"OrderContextConnection\":\"$ConnectionStrings__OrderContextConnection\"},\"EmailConfiguration\":{\"Host\":\"$EmailConfiguration__Host\",\"Port\":$EmailConfiguration__Port,\"SSL\":$EmailConfiguration__SSL,\"DisplayName\":\"$EmailConfiguration__DisplayName\",\"Email\":\"$EmailConfiguration__Email\",\"Password\":\"$EmailConfiguration__Password\",\"DropEmails\":$EmailConfiguration__DropEmails,\"SendEmails\":$EmailConfiguration__SendEmails},\"UrlConfiguration\":{\"Admin\":\"$UrlConfiguration__Admin\",\"EndUser\":\"$UrlConfiguration__EndUser\"}}" > ./Backend/Order.Test/appsettings.Test.json
         env:
             ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
             EmailConfiguration__Host: smtp.gmail.com

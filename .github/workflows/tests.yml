@@ -27,9 +27,9 @@ jobs:
       - name: Restore
         run: dotnet restore ./Backend/Order.API/Order.API.csproj
       - name: Initialise database
-        run: dotnet ef database update --project "./Backend/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;"
+        run: dotnet ef database update --project "./Backend/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;"
         env:
-          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
+          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;
           EmailConfiguration__Host: smtp.gmail.com
           EmailConfiguration__Port: 465
           EmailConfiguration__SSL: true
@@ -43,7 +43,7 @@ jobs:
       - name: Create Settings
         run: echo "{\"ConnectionStrings\":{\"OrderContextConnection\":\"$ConnectionStrings__OrderContextConnection\"},\"EmailConfiguration\":{\"Host\":\"$EmailConfiguration__Host\",\"Port\":$EmailConfiguration__Port,\"SSL\":$EmailConfiguration__SSL,\"DisplayName\":\"$EmailConfiguration__DisplayName\",\"Email\":\"$EmailConfiguration__Email\",\"Password\":\"$EmailConfiguration__Password\",\"DropEmails\":$EmailConfiguration__DropEmails,\"SendEmails\":$EmailConfiguration__SendEmails},\"UrlConfiguration\":{\"Admin\":\"$UrlConfiguration__Admin\",\"EndUser\":\"$UrlConfiguration__EndUser\"}}" > ./Backend/Order.Test/appsettings.Test.json
         env:
-            ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
+            ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;
             EmailConfiguration__Host: smtp.gmail.com
             EmailConfiguration__Port: 465
             EmailConfiguration__SSL: true

@@ -155,7 +155,7 @@ namespace Order.API.Controllers.AuthController
         public async Task<IActionResult> Verify([FromRoute] int id, [FromRoute] string code)
         {
             var (category, user) = await GetUserById(id);
-            if (category == UserState.NotExist || user == null)
+            if (category == UserState.NotExist || user == null || !IsValidBase64(code))
                 return NewStatusCode(401);
             
             code = Decode(code);
@@ -324,7 +324,7 @@ namespace Order.API.Controllers.AuthController
         public async Task<IActionResult> ChangePassword([FromRoute] int id, [FromRoute] string code, [FromBody] UpdatePassword updatePassword)
         {
             var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
+            if (user == null || !IsValidBase64(code))
                 return NewStatusCode(401);
 
             var result = await _userManager.ResetPasswordAsync(user, Decode(code), updatePassword.Password);
@@ -430,7 +430,7 @@ namespace Order.API.Controllers.AuthController
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
             var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
+            if (user == null || !IsValidBase64(code))
                 return NewStatusCode(401);
 
             var changeEmailResult = await _userManager.ChangeEmailAsync(user, user.TempEmail, Decode(code));
@@ -735,6 +735,25 @@ namespace Order.API.Controllers.AuthController
         private static string Decode(string code)
         {
             return Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+        }
+
+        /// <summary>
+        /// Check if a string is a valid base64 string.
+        /// </summary>
+        /// <param name="base64">
+        /// The string to check.
+        /// </param>
+        private static bool IsValidBase64(string base64)
+        {
+            try
+            {
+                Convert.FromBase64String(base64);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

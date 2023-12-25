@@ -128,6 +128,7 @@ jobs:
           EmailConfiguration__DropEmailDirectory: ${{ github.workspace }}/Frontend/admin/src/cypress/email
           UrlConfiguration__Admin: http://localhost:5000
           UrlConfiguration__EndUser: http://localhost:5001
+          VITE_APP_ENDPOINT: http://localhost:5026/
   end-user-test:
     runs-on: ubuntu-latest
     needs: backend-test

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "windows-full": "powershell -executionpolicy unrestricted -file ./windows-start.ps1",
+    "linux-full": "bash ./linux-start.sh",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",

@@ -17,6 +17,7 @@
     npm run cypress:open
 
     killall Order.API
+    killall node
     kill -9 $api
     kill -9 $npm
     dotnet ef database update 0 \
@@ -27,6 +28,7 @@
     PASSWORD=$(<dbpassword)
 
     killall Order.API
+    killall node
     kill -9 $api
     kill -9 $npm
 

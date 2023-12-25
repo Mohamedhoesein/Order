@@ -4,6 +4,7 @@
   "scripts": {
     "ng": "ng",
     "windows-full": "powershell -executionpolicy unrestricted -file ./windows-start.ps1",
+    "linux-full": "bash ./linux-start.sh",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",

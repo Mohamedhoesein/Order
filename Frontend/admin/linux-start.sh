@@ -9,15 +9,17 @@
         --project "../../Backend/Order.API/Order.API.csproj" &
     api="$!"
 
-    npm ng serve &
+    npm run dev &
     npm="$!"
     read -s -n 1
     killall Order.API
+    killall node
     kill -9 $api
     kill -9 $npm
 } ||
 {
     killall Order.API
+    killall node
     kill -9 $api
     kill -9 $npm
 }

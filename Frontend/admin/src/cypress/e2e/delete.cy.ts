@@ -88,7 +88,7 @@ describe('delete.cy.ts', () => {
 
         cy.contains('Delete Account');
 
-        cy.get('#deletePassword').type(DEFAULT_PASSWORD);
+        cy.get('#deletePassword').type('TESTPASSWORD123!@#');
         cy.get('#delete-submit');
 
         cy.contains('Please give a password.');
@@ -113,7 +113,7 @@ describe('delete.cy.ts', () => {
 
         cy.contains('Delete Account');
 
-        cy.get('#deletePassword').type(DEFAULT_PASSWORD);
+        cy.get('#deletePassword').type('testpassword!@#');
         cy.get('#delete-submit');
 
         cy.contains('Please give a password.');

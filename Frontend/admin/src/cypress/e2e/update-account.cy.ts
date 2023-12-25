@@ -109,7 +109,7 @@ describe('update-account.cy.ts', () => {
         cy.get('#account-link').click();
         cy.url().should('eq', `${BASE_URL}/account`);
 
-        cy.get('#password').type(DEFAULT_PASSWORD);
+        cy.get('#password').type('TESTPASSWORD123!@#');
         cy.get('#update-submit');
 
         cy.contains('Please give a password.');
@@ -127,7 +127,7 @@ describe('update-account.cy.ts', () => {
         cy.get('#account-link').click();
         cy.url().should('eq', `${BASE_URL}/account`);
 
-        cy.get('#password').type(DEFAULT_PASSWORD);
+        cy.get('#password').type('testpassword123!@#');
         cy.get('#update-submit');
 
         cy.contains('Please give a password.');

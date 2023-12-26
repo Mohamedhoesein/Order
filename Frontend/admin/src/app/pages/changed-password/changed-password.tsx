@@ -50,6 +50,7 @@ export const ChangedPassword = () => {
         if (state.disabled && !isLoading) {
             if (isSuccess) {
                 navigate("/");
+                setState({message: 'Password changed.', showMessage: true, timeout: false});
             }
             else {
                 let partialState: State = {
@@ -72,7 +73,7 @@ export const ChangedPassword = () => {
                             confirmPassword: errorContent.confirmPassword.length > 0,
                         }
                     }
-                    setState({message: 'Password changed.', showMessage: true, timeout: false});
+                    setState({message: 'An error occurred, please try again.', showMessage: true, timeout: false});
                 }
                 else {
                     setState({message: "An error occurred, please try again.", showMessage: true, timeout: false});

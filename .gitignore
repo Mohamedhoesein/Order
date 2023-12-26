@@ -2,3 +2,7 @@ node_modules
 .idea
 bin
 obj
+appsettings.Development.json
+appsettings.Test.json
+dbpassword
+cypress.env.json

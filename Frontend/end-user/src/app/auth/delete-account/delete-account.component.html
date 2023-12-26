@@ -1,0 +1,7 @@
+<h1 mat-dialog-title>Delete Account</h1>
+<div mat-dialog-content>
+  <form (ngSubmit)="onSubmit()">
+    <app-input [data]="passwordFormControl"/>
+    <button id="delete-submit" mat-raised-button type="submit" color="primary" [disabled]="!valid()">Delete Account</button> 
+  </form>
+</div>

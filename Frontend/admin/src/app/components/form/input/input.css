@@ -1,0 +1,76 @@
+.form-outline .form-control:focus~.form-notch .form-notch-leading {
+    border-color: currentcolor currentcolor currentcolor rgb(59, 113, 202) !important;
+    box-shadow: -1px 0 0 0 rgb(59, 113, 202), 0 1px 0 0 rgb(59, 113, 202),
+      0 -1px 0 0 rgb(59, 113, 202) !important;
+}
+
+.form-outline .form-control:focus~.form-notch .form-notch-middle {
+    border-color: rgb(59, 113, 202) !important;
+    border-top: 1px transparent !important;
+    box-shadow: 0 1px 0 0 rgb(59, 113, 202) !important;
+}
+
+.was-validated .form-outline .form-control:focus~.form-notch .form-notch-trailing {
+    border-color: currentcolor currentcolor currentcolor rgb(59, 113, 202) !important;
+    box-shadow: 1px 0 0 0 rgb(59, 113, 202), 0 -1px 0 0 rgb(59, 113, 202),
+      0 1px 0 0 rgb(59, 113, 202) !important;
+}
+
+.invalid .form-outline .form-control:focus~.form-notch .form-notch-leading {
+    border-color: currentcolor currentcolor currentcolor rgb(220, 76, 100) !important;
+    box-shadow: -1px 0 0 0 rgb(220, 76, 100), 0 1px 0 0 rgb(220, 76, 100),
+      0 -1px 0 0 rgb(220, 76, 100) !important;
+}
+
+.invalid .form-outline .form-control:focus~.form-notch .form-notch-middle {
+    border-color: rgb(220, 76, 100) !important;
+    border-top: 1px transparent !important;
+    box-shadow: 0 1px 0 0 rgb(220, 76, 100) !important;
+}
+
+.invalid .form-outline .form-control:focus~.form-notch .form-notch-trailing {
+    border-color: currentcolor currentcolor currentcolor rgb(220, 76, 100) !important;
+    box-shadow: 1px 0 0 0 rgb(220, 76, 100), 0 -1px 0 0 rgb(220, 76, 100),
+      0 1px 0 0 rgb(220, 76, 100) !important;
+}
+
+.form-outline .form-control.active~.form-notch .form-notch-middle {
+    border-top: 1px transparent !important;
+}
+
+.invalid .form-outline .form-control~.form-notch .form-notch-leading {
+    border-color: rgb(220, 76, 100) !important;
+}
+
+.invalid .form-outline .form-control~.form-notch .form-notch-middle {
+    border-color: rgb(220, 76, 100) !important;
+}
+
+.invalid .form-outline .form-control~.form-notch .form-notch-trailing {
+    border-color: rgb(220, 76, 100) !important;
+}
+
+.form-outline .form-control~.form-notch .form-notch-leading {
+    border-color: rgb(189, 189, 189) !important;
+}
+
+.form-outline .form-control~.form-notch .form-notch-middle {
+    border-color: rgb(189, 189, 189) !important;
+}
+
+.form-outline .form-control~.form-notch .form-notch-trailing {
+    border-color: rgb(189, 189, 189) !important;
+}
+
+.form-outline .form-control~.form-label, .form-outline .form-control:focus~.form-label {
+    color: rgba(0, 0, 0, .6) !important;
+}
+
+.invalid  .form-outline .form-control~.form-label, .invalid .form-outline .form-control:focus~.form-label {
+    color: rgb(220, 76, 100) !important;
+}
+
+.invalid-feedback {
+    display: block !important;
+    margin-top: -1.25rem !important;
+}

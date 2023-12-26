@@ -1,0 +1,205 @@
+name: Tests
+on: [pull_request, workflow_dispatch]
+jobs:
+  backend-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+      - name: Install EF
+        run: dotnet tool install --global dotnet-ef
+      - name: Restore
+        run: dotnet restore ./Backend/Order.API/Order.API.csproj
+      - name: Initialise database
+        run: dotnet ef database update --project "./Backend/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;"
+        env:
+          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;
+          EmailConfiguration__Host: smtp.gmail.com
+          EmailConfiguration__Port: 465
+          EmailConfiguration__SSL: true
+          EmailConfiguration__DisplayName: Order
+          EmailConfiguration__Email: rmohamedhoesein3@gmail.com
+          EmailConfiguration__Password: ${{ secrets.EMAIL_PASSWORD }}
+          EmailConfiguration__DropEmails: true
+          EmailConfiguration__SendEmails: false
+          UrlConfiguration__Admin: http://localhost:5000
+          UrlConfiguration__EndUser: http://localhost:5001
+      - name: Create Settings
+        run: echo "{\"ConnectionStrings\":{\"OrderContextConnection\":\"$ConnectionStrings__OrderContextConnection\"},\"EmailConfiguration\":{\"Host\":\"$EmailConfiguration__Host\",\"Port\":$EmailConfiguration__Port,\"SSL\":$EmailConfiguration__SSL,\"DisplayName\":\"$EmailConfiguration__DisplayName\",\"Email\":\"$EmailConfiguration__Email\",\"Password\":\"$EmailConfiguration__Password\",\"DropEmails\":$EmailConfiguration__DropEmails,\"SendEmails\":$EmailConfiguration__SendEmails},\"UrlConfiguration\":{\"Admin\":\"$UrlConfiguration__Admin\",\"EndUser\":\"$UrlConfiguration__EndUser\"}}" > ./Backend/Order.Test/appsettings.Test.json
+        env:
+            ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;
+            EmailConfiguration__Host: smtp.gmail.com
+            EmailConfiguration__Port: 465
+            EmailConfiguration__SSL: true
+            EmailConfiguration__DisplayName: Order
+            EmailConfiguration__Email: rmohamedhoesein3@gmail.com
+            EmailConfiguration__Password: ${{ secrets.EMAIL_PASSWORD }}
+            EmailConfiguration__DropEmails: true
+            EmailConfiguration__SendEmails: false
+            UrlConfiguration__Admin: http://localhost:5000
+            UrlConfiguration__EndUser: http://localhost:5001
+      - name: Test
+        run: dotnet test ./Backend/Order.Test/Order.Test.csproj
+  admin-test:
+    runs-on: ubuntu-latest
+    needs: backend-test
+    strategy:
+      fail-fast: false
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+      - name: Install EF
+        run: dotnet tool install --global dotnet-ef
+      - name: Restore
+        run: dotnet restore ./Backend/Order.API/Order.API.csproj
+      - name: Initialise database
+        run: dotnet ef database update --project "./Backend/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;"
+        env:
+          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;
+          EmailConfiguration__Host: smtp.gmail.com
+          EmailConfiguration__Port: 465
+          EmailConfiguration__SSL: true
+          EmailConfiguration__DisplayName: Order
+          EmailConfiguration__Email: rmohamedhoesein3@gmail.com
+          EmailConfiguration__Password: ${{ secrets.EMAIL_PASSWORD }}
+          EmailConfiguration__DropEmails: true
+          EmailConfiguration__SendEmails: false
+          UrlConfiguration__Admin: http://localhost:5000
+          UrlConfiguration__EndUser: http://localhost:5001
+      - name: NPM install
+        run: npm --prefix ./Frontend/admin install
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./Frontend/admin
+          start: dotnet run --project ../../Backend/Order.API/Order.API.csproj,npm run dev
+          wait-on: 'http://localhost:5000/'
+          record: true
+          parallel: false
+          browser: chrome
+        env:
+          CYPRESS_PGUSER: 'postgres'
+          CYPRESS_PGPASSWORD: 'postgres'
+          CYPRESS_PGHOST: 'localhost'
+          CYPRESS_PGPORT: '5432'
+          CYPRESS_PGDATABASE: 'Order.Test.Admin'
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.PROJECT_ID }}
+          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.Admin;
+          EmailConfiguration__Host: smtp.gmail.com
+          EmailConfiguration__Port: 465
+          EmailConfiguration__SSL: true
+          EmailConfiguration__DisplayName: Order
+          EmailConfiguration__Email: rmohamedhoesein3@gmail.com
+          EmailConfiguration__Password: ${{ secrets.EMAIL_PASSWORD }}
+          EmailConfiguration__DropEmails: true
+          EmailConfiguration__SendEmails: false
+          EmailConfiguration__DropEmailDirectory: ${{ github.workspace }}/Frontend/admin/src/cypress/email
+          UrlConfiguration__Admin: http://localhost:5000
+          UrlConfiguration__EndUser: http://localhost:5001
+          VITE_APP_ENDPOINT: http://localhost:5026/
+  end-user-test:
+    runs-on: ubuntu-latest
+    needs: backend-test
+    strategy:
+      fail-fast: false
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Dotnet
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'
+      - name: Install EF
+        run: dotnet tool install --global dotnet-ef
+      - name: Restore
+        run: dotnet restore ./Backend/Order.API/Order.API.csproj
+      - name: Initialise database
+        run: dotnet ef database update --project "./Backend/Order.API/Order.API.csproj" --connection "User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;"
+        env:
+          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
+          EmailConfiguration__Host: smtp.gmail.com
+          EmailConfiguration__Port: 465
+          EmailConfiguration__SSL: true
+          EmailConfiguration__DisplayName: Order
+          EmailConfiguration__Email: rmohamedhoesein3@gmail.com
+          EmailConfiguration__Password: ${{ secrets.EMAIL_PASSWORD }}
+          EmailConfiguration__DropEmails: true
+          EmailConfiguration__SendEmails: false
+          UrlConfiguration__Admin: http://localhost:5000
+          UrlConfiguration__EndUser: http://localhost:5001
+      - name: NPM install
+        run: npm --prefix ./Frontend/end-user install
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: ./Frontend/end-user
+          start: dotnet run --project ../../Backend/Order.API/Order.API.csproj,npm start
+          wait-on: 'http://localhost:5001/'
+          record: true
+          parallel: false
+          browser: chrome
+        env:
+          CYPRESS_PGUSER: 'postgres'
+          CYPRESS_PGPASSWORD: 'postgres'
+          CYPRESS_PGHOST: 'localhost'
+          CYPRESS_PGPORT: '5432'
+          CYPRESS_PGDATABASE: 'Order.Test.EndUser'
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          CYPRESS_PROJECT_ID: ${{ secrets.PROJECT_ID }}
+          ConnectionStrings__OrderContextConnection: User ID=postgres;Password='postgres';Host=localhost;Port=5432;Database=Order.Test.EndUser;
+          EmailConfiguration__Host: smtp.gmail.com
+          EmailConfiguration__Port: 465
+          EmailConfiguration__SSL: true
+          EmailConfiguration__DisplayName: Order
+          EmailConfiguration__Email: rmohamedhoesein3@gmail.com
+          EmailConfiguration__Password: ${{ secrets.EMAIL_PASSWORD }}
+          EmailConfiguration__DropEmails: true
+          EmailConfiguration__SendEmails: false
+          EmailConfiguration__DropEmailDirectory: ${{ github.workspace }}/Frontend/end-user/src/cypress/email
+          UrlConfiguration__Admin: http://localhost:5000
+          UrlConfiguration__EndUser: http://localhost:5001

@@ -1,0 +1,8 @@
+<mat-toolbar color="primary" class="pb-1">
+  <a id="home-link" class="link" mat-button href="/">Web Shop</a>
+  <span class="spacer"></span>
+  <a id="register-link" class="link" mat-button *ngIf="!loggedIn" href="/register">Register</a>
+  <a id="login-link" class="link" mat-button *ngIf="!loggedIn" href="/login">Log in</a>
+  <a id="account-link" class="link" mat-button *ngIf="loggedIn" href="/account">Account</a>
+  <a id="logout-link" class="link" mat-button *ngIf="loggedIn" href="/logout">Log out</a>
+</mat-toolbar>

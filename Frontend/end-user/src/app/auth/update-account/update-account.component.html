@@ -1,0 +1,16 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Update Account</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form (ngSubmit)="onSubmit()">
+      <app-input [data]="nameFormControl"/>
+      <app-input [data]="emailFormControl"/>
+      <app-input [data]="addressFormControl"/>
+      <app-input [data]="passwordFormControl"/>
+      <button id="update-account-submit" mat-raised-button type="submit" color="primary" [disabled]="!valid()">Update Account</button>
+    </form>
+    <button id="show-delete-account" style="float: left; margin-top: 1rem;" mat-raised-button color="warn" (click)="openDialog()">Delete Account</button>
+    <button id="change-password" style="margin-top: 1rem;" mat-raised-button color="accent" (click)="changePassword()">Change Password</button>
+  </mat-card-content>
+</mat-card>

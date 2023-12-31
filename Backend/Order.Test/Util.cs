@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -8,6 +9,10 @@ using Microsoft.Extensions.Configuration;
 using MimeKit;
 using Order.API;
 using Order.API.Context;
+using Order.API.Controllers.CategoryController.Models;
+using ClosedSpecification = Order.API.Context.ClosedSpecification;
+using ClosedSpecificationValue = Order.API.Context.ClosedSpecificationValue;
+using OpenSpecification = Order.API.Context.OpenSpecification;
 
 namespace Order.Test
 {
@@ -16,6 +21,134 @@ namespace Order.Test
     /// </summary>
     public static class Util
     {
+        public static WholeSubcategory NewSubcategory = new(new Subcategory
+            {
+                Name = "TestSubcategory",
+                Deleted = false,
+                OpenSpecifications = new List<OpenSpecification>
+                {
+                    new()
+                    {
+                        Name = "OpenSpecification1",
+                        Deleted = false
+                    },
+                    new()
+                    {
+                        Name = "OpenSpecification2",
+                        Deleted = false
+                    },
+                    new()
+                    {
+                        Name = "OpenSpecification3",
+                        Deleted = false
+                    }
+                },
+                ClosedSpecifications = new List<ClosedSpecification>
+                {
+                    new()
+                    {
+                        Name = "ClosedSpecification1",
+                        Deleted = false,
+                        ClosedSpecificationValues = new List<ClosedSpecificationValue>
+                        {
+                            new()
+                            {
+                                Deleted = false,
+                                Value = "Value1"
+                            },
+                            new()
+                            {
+                                Deleted = false,
+                                Value = "Value2"
+                            },
+                            new()
+                            {
+                                Deleted = false,
+                                Value = "Value3"
+                            }
+                        },
+                        Filter = new Filter
+                        {
+                            Title = "Title"
+                        }
+                    },
+                     new()
+                     {
+                         Name = "ClosedSpecification2",
+                         Deleted = false,
+                         ClosedSpecificationValues = new List<ClosedSpecificationValue>()
+                     },
+                     new()
+                     {
+                         Name = "ClosedSpecification3",
+                         Deleted = false,
+                         ClosedSpecificationValues = new List<ClosedSpecificationValue>()
+                     },
+                     new()
+                     {
+                         Name = "ClosedSpecification4",
+                         Deleted = false,
+                         ClosedSpecificationValues = new List<ClosedSpecificationValue>()
+                     }
+                }
+            });
+
+        public static WholeSubcategory UpdatedSubcategory = new(new Subcategory
+            {
+                Name = "TestSubcategory",
+                Deleted = false,
+                OpenSpecifications = new List<OpenSpecification>
+                {
+                    new()
+                    {
+                        Name = "OpenSpecification1",
+                        Deleted = false
+                    },
+                    new()
+                    {
+                        Name = "OpenSpecification2",
+                        Deleted = true
+                    },
+                },
+                ClosedSpecifications = new List<ClosedSpecification>
+                {
+                    new()
+                    {
+                        Name = "ClosedSpecification1",
+                        Deleted = false,
+                        ClosedSpecificationValues = new List<ClosedSpecificationValue>
+                        {
+                            new()
+                            {
+                                Deleted = false,
+                                Value = "Value1"
+                            },
+                            new()
+                            {
+                                Deleted = true,
+                                Value = "Value2"
+                            }
+                        },
+                        Filter = null
+                    },
+                    new()
+                    {
+                        Name = "ClosedSpecification2",
+                        Deleted = true,
+                        ClosedSpecificationValues = new List<ClosedSpecificationValue>()
+                    },
+                    new()
+                    {
+                        Name = "ClosedSpecification4",
+                        Deleted = false,
+                        ClosedSpecificationValues = new List<ClosedSpecificationValue>(),
+                        Filter = new Filter
+                        {
+                            Title = "Filter"
+                        }
+                    }
+                }
+            });
         /// <summary>
         /// The default password used for all accounts.
         /// </summary>

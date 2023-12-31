@@ -1,7 +1,5 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Order.API.Controllers.AuthController.Models;
 
@@ -11,21 +9,8 @@ namespace Order.Test.Controllers.AuthController
     /// Tests for account updating.
     /// </summary>
     [TestClass]
-    public class UpdateTest : IDisposable
+    public class UpdateTest : BaseTest
     {
-        private readonly TestServer _testServer;
-        private readonly CookieHttpClient _client;
-
-        /// <summary>
-        /// Initialize a new <see cref="LoginTest"/>.
-        /// </summary>
-        public UpdateTest()
-        {
-            _testServer = Util.CreateTestServer();
-            _client = new CookieHttpClient(_testServer.CreateClient());
-            Util.CreateDatabase();
-        }
-
         /// <summary>
         /// Test if the account information of an employee is updated.
         /// </summary>
@@ -116,10 +101,9 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task UpdateAccountEndUser_Success()
         {
-            const int index = 1;
-            var email = $"test{index}@test.com";
+            var email = "test1@test.com";
 
-            var (registerResult, verify1Result) = await _client.CreateTestEndUser(index, true);
+            var (registerResult, verify1Result) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             Assert.IsNotNull(verify1Result);
             Assert.AreEqual(HttpStatusCode.OK, verify1Result.StatusCode);
@@ -158,10 +142,9 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task UpdateAccountEndUser_Unauthorized_InvalidPassword()
         {
-            const int index = 2;
-            var email = $"test{index}@test.com";
+            var email = "test1@test.com";
 
-            var (registerResult, verifyResult) = await _client.CreateTestEndUser(index, true);
+            var (registerResult, verifyResult) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             Assert.IsNotNull(verifyResult);
             Assert.AreEqual(HttpStatusCode.OK, verifyResult.StatusCode);
@@ -179,7 +162,7 @@ namespace Order.Test.Controllers.AuthController
             Assert.IsNotNull(account);
             Assert.AreEqual("TempEndUser", account.Name);
             Assert.AreEqual("Address", account.Address);
-            Assert.AreEqual("test2@test.com", account.Email);
+            Assert.AreEqual(email, account.Email);
         }
 
         /// <summary>
@@ -188,10 +171,9 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task UpdateAccountEndUser_Unauthorized_NotLoggedIn()
         {
-            const int index = 2;
-            var email = $"test{index}@test.com";
+            var email = "test1@test.com";
 
-            var (registerResult, verifyResult) = await _client.CreateTestEndUser(index, true);
+            var (registerResult, verifyResult) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             Assert.IsNotNull(verifyResult);
             Assert.AreEqual(HttpStatusCode.OK, verifyResult.StatusCode);
@@ -209,7 +191,7 @@ namespace Order.Test.Controllers.AuthController
             Assert.IsNotNull(account);
             Assert.AreEqual("TempEndUser", account.Name);
             Assert.AreEqual("Address", account.Address);
-            Assert.AreEqual("test2@test.com", account.Email);
+            Assert.AreEqual(email, account.Email);
         }
 
         /// <summary>
@@ -218,10 +200,9 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task UpdateAccountEndUser_Forbidden_EmployeeEndpoint()
         {
-            const int index = 3;
-            var email = $"test{index}@test.com";
+            var email = "test1@test.com";
 
-            var (registerResult, verifyResult) = await _client.CreateTestEndUser(index, true);
+            var (registerResult, verifyResult) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             Assert.IsNotNull(verifyResult);
             Assert.AreEqual(HttpStatusCode.OK, verifyResult.StatusCode);
@@ -242,29 +223,7 @@ namespace Order.Test.Controllers.AuthController
             Assert.IsNotNull(account);
             Assert.AreEqual("TempEndUser", account.Name);
             Assert.AreEqual("Address", account.Address);
-            Assert.AreEqual("test3@test.com", account.Email);
-        }
-
-        /// <summary>
-        /// Log out after every test.
-        /// </summary>
-        [TestCleanup]
-        public async Task LogOut()
-        {
-            await _client.PostAsync("auth/logout");
-        }
-
-        /// <summary>
-        /// Dispose of the underlying <see cref="TestServer"/>, and <see cref="CookieHttpClient"/>.
-        /// Also delete the database, and delete the files associated with the emails.
-        /// </summary>
-        public void Dispose()
-        {
-            _testServer.Dispose();
-            _client.Dispose();
-            Util.DeleteDatabase();
-            Util.DeleteEmails();
-            GC.SuppressFinalize(this);
+            Assert.AreEqual(email, account.Email);
         }
     }
 }

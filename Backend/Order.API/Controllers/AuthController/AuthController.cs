@@ -19,7 +19,7 @@ namespace Order.API.Controllers.AuthController
     /// </summary>
     [Route("auth")]
     [ApiController]
-    public class AuthController : Controller
+    public class AuthController : BaseController
     {
         private readonly CustomSignInManager _signInManager;
         private readonly CustomUserManager _userManager;
@@ -693,20 +693,6 @@ namespace Order.API.Controllers.AuthController
             var callbackUrl = $"{baseUrl}/{path}/{user.Id}/{code}";
             var message = $"To verify please click on the following link: {callbackUrl}";
             await _sender.Send(user.Name, email, message);
-        }
-
-        /// <summary>
-        /// Return a <see cref="ObjectResult"/> with the given status code without a body.
-        /// </summary>
-        /// <param name="statusCode">
-        /// The status code to return.
-        /// </param>
-        /// <returns>
-        /// The <see cref="ObjectResult"/> with the given status code without a body.
-        /// </returns>
-        private ObjectResult NewStatusCode(int statusCode)
-        {
-            return base.StatusCode(statusCode, "");
         }
 
         /// <summary>

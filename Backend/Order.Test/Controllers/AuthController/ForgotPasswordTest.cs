@@ -1,9 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Order.Test.Controllers.AuthController
@@ -12,21 +10,8 @@ namespace Order.Test.Controllers.AuthController
     /// Tests for resetting a password.
     /// </summary>
     [TestClass]
-    public class ForgotPasswordTest : IDisposable
+    public class ForgotPasswordTest : BaseTest
     {
-        private readonly TestServer _testServer;
-        private readonly CookieHttpClient _client;
-
-        /// <summary>
-        /// Initialize a new <see cref="ForgotPasswordTest"/>.
-        /// </summary>
-        public ForgotPasswordTest()
-        {
-            _testServer = Util.CreateTestServer();
-            _client = new CookieHttpClient(_testServer.CreateClient());
-            Util.CreateDatabase();
-        }
-
         /// <summary>
         /// Test if the password is correctly reset when specifying the email of an employee.
         /// </summary>
@@ -180,9 +165,8 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task ForgotPasswordEndUser_Success()
         {
-            const int index = 2;
-            var email = $"test{index}@test.com";
-            var (registerResult, _) = await _client.CreateTestEndUser(index, true);
+            var email = "test1@test.com";
+            var (registerResult, _) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
 
             var forgotResult =  await _client.ForgotPasswordEndUser(email);
@@ -235,13 +219,13 @@ namespace Order.Test.Controllers.AuthController
         /// <param name="newCode">
         /// The code to use if an invalid code needs to be used.
         /// </param>
-        [DataRow(3, false, "-1", true, "code", DisplayName = "ForgotPasswordEndUser_Unauthorized_InvalidId")]
-        [DataRow(4, true, "-1", false, "code", DisplayName = "ForgotPasswordEndUser_Unauthorized_InvalidCode")]
+        [DataRow(false, "-1", true, "code", DisplayName = "ForgotPasswordEndUser_Unauthorized_InvalidId")]
+        [DataRow(true, "-1", false, "code", DisplayName = "ForgotPasswordEndUser_Unauthorized_InvalidCode")]
         [DataTestMethod]
-        public async Task ForgotPasswordEndUser_Unauthorized(int index, bool correctId, string newId, bool correctCode, string newCode)
+        public async Task ForgotPasswordEndUser_Unauthorized(bool correctId, string newId, bool correctCode, string newCode)
         {
-            var email = $"test{index}@test.com";
-            var (registerResult, _) = await _client.CreateTestEndUser(index, true);
+            var email = $"test1@test.com";
+            var (registerResult, _) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
 
             var forgotResult =  await _client.ForgotPasswordEndUser(email);
@@ -261,9 +245,8 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task ForgotPasswordCurrentEndUser_Success()
         {
-            const int index = 2;
-            var email = $"test{index}@test.com";
-            var (registerResult, _) = await _client.CreateTestEndUser(index, true);
+            var email = "test1@test.com";
+            var (registerResult, _) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
 
             var loginResult = await _client.LoginEndUser(email, Util.DefaultPassword);
@@ -322,13 +305,13 @@ namespace Order.Test.Controllers.AuthController
         /// <param name="newCode">
         /// The code to use if an invalid code needs to be used.
         /// </param>
-        [DataRow(3, false, "-1", true, "code", DisplayName = "ForgotPasswordCurrentEndUser_Unauthorized_InvalidId")]
-        [DataRow(4, true, "-1", false, "code", DisplayName = "ForgotPasswordCurrentEndUser_Unauthorized_InvalidCode")]
+        [DataRow(false, "-1", true, "code", DisplayName = "ForgotPasswordCurrentEndUser_Unauthorized_InvalidId")]
+        [DataRow(true, "-1", false, "code", DisplayName = "ForgotPasswordCurrentEndUser_Unauthorized_InvalidCode")]
         [DataTestMethod]
-        public async Task ForgotPasswordCurrentEndUser_Unauthorized(int index, bool correctId, string newId, bool correctCode, string newCode)
+        public async Task ForgotPasswordCurrentEndUser_Unauthorized(bool correctId, string newId, bool correctCode, string newCode)
         {
-            var email = $"test{index}@test.com";
-            var (registerResult, _) = await _client.CreateTestEndUser(index, true);
+            var email = $"test1@test.com";
+            var (registerResult, _) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
 
             var loginResult = await _client.LoginEndUser(email, Util.DefaultPassword);
@@ -343,28 +326,6 @@ namespace Order.Test.Controllers.AuthController
             Assert.AreEqual("change-password", type);
             var verifyResult = await _client.ChangePassword(Util.NewPassword, Util.NewPassword, id, code);
             Assert.AreEqual(HttpStatusCode.Unauthorized, verifyResult.StatusCode);
-        }
-
-        /// <summary>
-        /// Log out after every test.
-        /// </summary>
-        [TestCleanup]
-        public async Task LogOut()
-        {
-            await _client.PostAsync("auth/logout");
-        }
-        
-        /// <summary>
-        /// Dispose of the underlying <see cref="TestServer"/>, and <see cref="CookieHttpClient"/>.
-        /// Also delete the database, and delete the files associated with the emails.
-        /// </summary>
-        public void Dispose()
-        {
-            _testServer.Dispose();
-            _client.Dispose();
-            Util.DeleteDatabase();
-            Util.DeleteEmails();
-            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Order.Test.Controllers.AuthController
@@ -10,32 +8,18 @@ namespace Order.Test.Controllers.AuthController
     /// Tests for the registering of end users and employees.
     /// </summary>
     [TestClass]
-    public class RegisterTest : IDisposable
+    public class RegisterTest : BaseTest
     {
-        private readonly TestServer _testServer;
-        private readonly CookieHttpClient _client;
-
-        /// <summary>
-        /// Initialize a new <see cref="LoginTest"/>.
-        /// </summary>
-        public RegisterTest()
-        {
-            _testServer = Util.CreateTestServer();
-            _client = new CookieHttpClient(_testServer.CreateClient());
-            Util.CreateDatabase();
-        }
-
         /// <summary>
         /// Test if a new employee account can successfully be registered.
         /// </summary>
         [TestMethod]
         public async Task EmployeeRegister_Success()
         {
-            const int index = 1;
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
 
-            var (registerResult, verifyResult) = await _client.CreateTestEmployee(index, true);
+            var (registerResult, verifyResult) = await _client.CreateTestEmployee(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             Assert.IsNotNull(verifyResult);
             Assert.AreEqual(HttpStatusCode.OK, verifyResult.StatusCode);
@@ -47,8 +31,7 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task EmployeeRegister_Unauthorized()
         {
-            const int index = 2;
-            var (registerResult, _) = await _client.CreateTestEmployee(index, true);
+            var (registerResult, _) = await _client.CreateTestEmployee(true);
             Assert.AreEqual(HttpStatusCode.Unauthorized, registerResult.StatusCode);
         }
 
@@ -58,11 +41,10 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task EndUserRegister_Success()
         {
-            const int index = 2;
-            var (registerResult, _) = await _client.CreateTestEndUser(index, false);
+            var (registerResult, _) = await _client.CreateTestEndUser(false);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
 
-            var (type, id, code) = Util.ParseLatestEmail("TempEndUser", $"test{index}@test.com");
+            var (type, id, code) = Util.ParseLatestEmail("TempEndUser", "test1@test.com");
             Assert.AreEqual("verify", type);
             var verifyResult = await _client.PostAsync($"auth/verify/{id}/{code}");
             Assert.AreEqual(HttpStatusCode.OK, verifyResult.StatusCode);
@@ -86,42 +68,20 @@ namespace Order.Test.Controllers.AuthController
         /// <param name="newCode">
         /// The code to use if an invalid code needs to be used.
         /// </param>
-        [DataRow(3, false, "-1", true, "code", DisplayName = "Verify_Unauthorized_InvalidId")]
-        [DataRow(4, true, "0", false, "code", DisplayName = "Verify_Unauthorized_InvalidCode")]
+        [DataRow(false, "-1", true, "code", DisplayName = "Verify_Unauthorized_InvalidId")]
+        [DataRow(true, "0", false, "code", DisplayName = "Verify_Unauthorized_InvalidCode")]
         [DataTestMethod]
-        public async Task Verify_Unauthorized(int index, bool correctId, string newId, bool correctCode, string newCode)
+        public async Task Verify_Unauthorized(bool correctId, string newId, bool correctCode, string newCode)
         {
-            var (registerResult, _) = await _client.CreateTestEndUser(index, false);
+            var (registerResult, _) = await _client.CreateTestEndUser(false);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
 
-            var (type, id, code) = Util.ParseLatestEmail("TempEndUser", $"test{index}@test.com");
+            var (type, id, code) = Util.ParseLatestEmail("TempEndUser", "test1@test.com");
             id = correctId ? id : newId;
             code = correctCode ? code : newCode;
             Assert.AreEqual("verify", type);
             var verifyResult = await _client.PostAsync($"auth/verify/{id}/{code}");
             Assert.AreEqual(HttpStatusCode.Unauthorized, verifyResult.StatusCode);
-        }
-
-        /// <summary>
-        /// Log out after every test.
-        /// </summary>
-        [TestCleanup]
-        public async Task LogOut()
-        {
-            await _client.PostAsync("auth/logout");
-        }
-
-        /// <summary>
-        /// Dispose of the underlying <see cref="TestServer"/>, and <see cref="CookieHttpClient"/>.
-        /// Also delete the database, and delete the files associated with the emails.
-        /// </summary>
-        public void Dispose()
-        {
-            _testServer.Dispose();
-            _client.Dispose();
-            Util.DeleteDatabase();
-            Util.DeleteEmails();
-            GC.SuppressFinalize(this);
         }
     }
 }

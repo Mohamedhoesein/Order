@@ -17,7 +17,8 @@ namespace Order.API.Context
             CreateRoleClaim(Role.Employee, Claims.AccountEdit),
             CreateRoleClaim(Role.Employee, Claims.AccountDeleteOwn),
             CreateRoleClaim(Role.Employee, Claims.AccountDeleteUser),
-            CreateRoleClaim(Role.Employee, Claims.AccountCreateEmployee)
+            CreateRoleClaim(Role.Employee, Claims.AccountCreateEmployee),
+            CreateRoleClaim(Role.Employee, Claims.CategoryManage)
         };
 
         /// <summary>

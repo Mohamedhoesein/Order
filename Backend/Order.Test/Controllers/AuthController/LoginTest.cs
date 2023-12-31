@@ -1,10 +1,6 @@
-﻿using System;
-using System.Net;
-using System.Net.Http.Json;
+﻿using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Order.API.Controllers.AuthController.Models;
 
 namespace Order.Test.Controllers.AuthController
 {
@@ -12,32 +8,18 @@ namespace Order.Test.Controllers.AuthController
     /// Tests for the logging in of end users and employees.
     /// </summary>
     [TestClass]
-    public class LoginTest : IDisposable
+    public class LoginTest : BaseTest
     {
-        private readonly TestServer _testServer;
-        private readonly CookieHttpClient _client;
-
-        /// <summary>
-        /// Initialize a new <see cref="LoginTest"/>.
-        /// </summary>
-        public LoginTest()
-        {
-            _testServer = Util.CreateTestServer();
-            _client = new CookieHttpClient(_testServer.CreateClient());
-            Util.CreateDatabase();
-        }
-
         /// <summary>
         /// Test if an employee can successfully log in with the pre existing account and a new account.
         /// </summary>
         [TestMethod]
         public async Task EmployeeLogin_Success()
         {
-            const int index = 1;
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
 
-            var (registerResult, verifyResult) = await _client.CreateTestEmployee(index, true);
+            var (registerResult, verifyResult) = await _client.CreateTestEmployee(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             Assert.IsNotNull(verifyResult);
             Assert.AreEqual(HttpStatusCode.OK, verifyResult.StatusCode);
@@ -65,16 +47,16 @@ namespace Order.Test.Controllers.AuthController
         /// <param name="verify">
         /// If the account should be verified.
         /// </param>
-        [DataRow(2, "test2@test.com", Util.DefaultPassword, false, DisplayName = "EmployeeLogin_Unauthorized_NotVerified")]
-        [DataRow(3, "test3@test.com", "TestPassword123!@", true, DisplayName = "EmployeeLogin_Unauthorized_InvalidPassword")]
-        [DataRow(4, "unkown@test.com", Util.DefaultPassword, true, DisplayName = "EmployeeLogin_Unauthorized_InvalidEmail")]
+        [DataRow("test2@test.com", Util.DefaultPassword, false, DisplayName = "EmployeeLogin_Unauthorized_NotVerified")]
+        [DataRow("test3@test.com", "TestPassword123!@", true, DisplayName = "EmployeeLogin_Unauthorized_InvalidPassword")]
+        [DataRow("unkown@test.com", Util.DefaultPassword, true, DisplayName = "EmployeeLogin_Unauthorized_InvalidEmail")]
         [DataTestMethod]
-        public async Task EmployeeLogin_Unauthorized(int index, string email, string password, bool verify)
+        public async Task EmployeeLogin_Unauthorized(string email, string password, bool verify)
         {
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
 
-            var (registerResult, verifyResult) = await _client.CreateTestEmployee(index, verify);
+            var (registerResult, verifyResult) = await _client.CreateTestEmployee(verify);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             if (verify)
             {
@@ -96,9 +78,8 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task EmployeeLogin_Unauthorized_User()
         {
-            const int index = 5;
-            var email = $"test{index}@test.com";
-            var (registerResult, verifyResult) = await _client.CreateTestEndUser(index, true);
+            var email = "test1@test.com";
+            var (registerResult, verifyResult) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             Assert.IsNotNull(verifyResult);
             Assert.AreEqual(HttpStatusCode.OK, verifyResult.StatusCode);
@@ -114,9 +95,8 @@ namespace Order.Test.Controllers.AuthController
         [TestMethod]
         public async Task EndUserLogin_Success()
         {
-            const int index = 6;
-            var email = $"test{index}@test.com";
-            var (registerResult, verifyResult) = await _client.CreateTestEndUser(index, true);
+            var email = "test1@test.com";
+            var (registerResult, verifyResult) = await _client.CreateTestEndUser(true);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             Assert.IsNotNull(verifyResult);
             Assert.AreEqual(HttpStatusCode.OK, verifyResult.StatusCode);
@@ -142,13 +122,13 @@ namespace Order.Test.Controllers.AuthController
         /// <param name="verify">
         /// If the account should be verified.
         /// </param>
-        [DataRow(7, "test7@test.com", Util.DefaultPassword, false, DisplayName = "EndUserLogin_Unauthorized_NotVerified")]
-        [DataRow(8, "test8@test.com", "TestPassword123!@", true, DisplayName = "EndUserLogin_Unauthorized_InvalidPassword")]
-        [DataRow(9, "unkown@test.com", Util.DefaultPassword, true, DisplayName = "EndUserLogin_Unauthorized_InvalidEmail")]
+        [DataRow("test7@test.com", Util.DefaultPassword, false, DisplayName = "EndUserLogin_Unauthorized_NotVerified")]
+        [DataRow("test8@test.com", "TestPassword123!@", true, DisplayName = "EndUserLogin_Unauthorized_InvalidPassword")]
+        [DataRow("unkown@test.com", Util.DefaultPassword, true, DisplayName = "EndUserLogin_Unauthorized_InvalidEmail")]
         [DataTestMethod]
-        public async Task EndUserLogin_Unauthorized(int index, string email, string password, bool verify)
+        public async Task EndUserLogin_Unauthorized(string email, string password, bool verify)
         {
-            var (registerResult, verifyResult) = await _client.CreateTestEndUser(index, verify);
+            var (registerResult, verifyResult) = await _client.CreateTestEndUser(verify);
             Assert.AreEqual(HttpStatusCode.OK, registerResult.StatusCode);
             if (verify)
             {
@@ -170,28 +150,6 @@ namespace Order.Test.Controllers.AuthController
             var loginResult = await _client.LoginEndUser("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.Unauthorized, loginResult.StatusCode);
             Assert.IsFalse(await _client.LoggedIn());
-        }
-
-        /// <summary>
-        /// Log out after every test.
-        /// </summary>
-        [TestCleanup]
-        public async Task LogOut()
-        {
-            await _client.PostAsync("auth/logout");
-        }
-
-        /// <summary>
-        /// Dispose of the underlying <see cref="TestServer"/>, and <see cref="CookieHttpClient"/>.
-        /// Also delete the database, and delete the files associated with the emails.
-        /// </summary>
-        public void Dispose()
-        {
-            _testServer.Dispose();
-            _client.Dispose();
-            Util.DeleteDatabase();
-            Util.DeleteEmails();
-            GC.SuppressFinalize(this);
         }
     }
 }

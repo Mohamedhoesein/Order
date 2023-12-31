@@ -1,7 +1,5 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Order.API.Controllers.AuthController.Models;
 
@@ -11,21 +9,8 @@ namespace Order.Test.Controllers.AuthController
     /// Tests for receiving account information.
     /// </summary>
     [TestClass]
-    public class GetTest : IDisposable
+    public class GetTest : BaseTest
     {
-        private readonly TestServer _testServer;
-        private readonly CookieHttpClient _client;
-
-        /// <summary>
-        /// Initialize a new <see cref="GetTest"/>.
-        /// </summary>
-        public GetTest()
-        {
-            _testServer = Util.CreateTestServer();
-            _client = new CookieHttpClient(_testServer.CreateClient());
-            Util.CreateDatabase();
-        }
-
         /// <summary>
         /// Test if the correct account information is returned.
         /// </summary>
@@ -53,28 +38,6 @@ namespace Order.Test.Controllers.AuthController
         {
             var getAccount = await _client.GetAccount();
             Assert.AreEqual(HttpStatusCode.Unauthorized, getAccount.StatusCode);
-        }
-
-        /// <summary>
-        /// Log out after every test.
-        /// </summary>
-        [TestCleanup]
-        public async Task LogOut()
-        {
-            await _client.PostAsync("auth/logout");
-        }
-
-        /// <summary>
-        /// Dispose of the underlying <see cref="TestServer"/>, and <see cref="CookieHttpClient"/>.
-        /// Also delete the database, and delete the files associated with the emails.
-        /// </summary>
-        public void Dispose()
-        {
-            _testServer.Dispose();
-            _client.Dispose();
-            Util.DeleteDatabase();
-            Util.DeleteEmails();
-            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Build.Framework;
 
 namespace Order.API.Context
 {
@@ -11,11 +12,13 @@ namespace Order.API.Context
         /// The name of the user.
         /// </summary>
         [PersonalData]
+        [Required]
         public string Name { get; set; }
         /// <summary>
         /// The full address of the user.
         /// </summary>
         [PersonalData]
+        [Required]
         public string Address { get; set; }
         /// <summary>
         /// The new email of the user that is not specified when updating an account, but has not yet verified.

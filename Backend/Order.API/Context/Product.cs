@@ -8,20 +8,9 @@ namespace Order.API.Context
     public class Product
     {
         /// <summary>
-        /// The name of the product.
+        /// The id of the product.
         /// </summary>
-        [Required]
-        public string Name { get; set; }
-        /// <summary>
-        /// The description of the product.
-        /// </summary>
-        [Required]
-        public string Description { get; set; }
-        /// <summary>
-        /// The price of the product in cents.
-        /// </summary>
-        [Required]
-        public int Price { get; set; }
+        public long Id { get; set; }
         /// <summary>
         /// If the product is deleted.
         /// </summary>
@@ -29,7 +18,7 @@ namespace Order.API.Context
         public bool Deleted { get; set; }
 
         /// <summary>
-        /// The id of the subcategory this product is associated with.
+        /// The name of the subcategory this product is associated with.
         /// </summary>
         public string SubcategoryName { get; set; }
         /// <summary>
@@ -45,12 +34,8 @@ namespace Order.API.Context
         /// </summary>
         public Subcategory Subcategory { get; set; }
         /// <summary>
-        /// The values for open specifications.
+        /// The associated 
         /// </summary>
-        public ICollection<OpenSpecificationValue> OpenSpecificationValues { get; set; }
-        /// <summary>
-        /// The values for closed specifications.
-        /// </summary>
-        public ICollection<ClosedSpecificationValue> ClosedSpecificationValues { get; set; }
+        public ICollection<ProductVersion> ProductVersions { get; set; }
     }
 }

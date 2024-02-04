@@ -45,13 +45,17 @@ namespace Order.API.Controllers.AuthController
         /// <param name="urlConfiguration">
         /// The <see cref="UrlConfiguration"/> used to access the base urls that are send to the users for the different emails. 
         /// </param>
+        /// <param name="orderContext">
+        /// The <see cref="OrderContext"/> used to handle database access.
+        /// </param>
         public AuthController(
             CustomSignInManager signInManager,
             CustomUserManager userManager,
             CustomUserStore userStore,
             MailSender sender,
-            UrlConfiguration urlConfiguration
-        )
+            UrlConfiguration urlConfiguration,
+            OrderContext orderContext
+        ) : base(orderContext)
         {
             _signInManager = signInManager;
             _userManager = userManager;

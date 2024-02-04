@@ -1,8 +1,8 @@
-using System.IO;
+using System;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Order.Test.CookieHttpClient
 {
@@ -28,6 +28,92 @@ namespace Order.Test.CookieHttpClient
         }
 
         /// <summary>
+        /// Do a get request to the specified path.
+        /// </summary>
+        /// <param name="path">
+        /// The path to do a get request to.
+        /// </param>
+        /// <returns>
+        /// The result of the get request.
+        /// </returns>
+        public async Task<HttpResponseMessage> GetAsync(string path)
+        {
+            return await SendAsync(HttpMethod.Get, path, null);
+        }
+
+        /// <summary>
+        /// Do a post request to the specified path with the data.
+        /// </summary>
+        /// <param name="path">
+        /// The path to do a post request to.
+        /// </param>
+        /// <param name="data">
+        /// The data to send to the server.
+        /// </param>
+        /// <returns>
+        /// The result of the post request.
+        /// </returns>
+        public async Task<HttpResponseMessage> PostAsync(string path, HttpContent? data = null)
+        {
+            return await SendAsync(HttpMethod.Post, path, data);
+        }
+
+        /// <summary>
+        /// Do a delete request to the specified path with the data.
+        /// </summary>
+        /// <param name="path">
+        /// The path to do a delete request to.
+        /// </param>
+        /// <param name="data">
+        /// The data to send to the server.
+        /// </param>
+        /// <returns>
+        /// The result of the delete request.
+        /// </returns>
+        public async Task<HttpResponseMessage> DeleteAsync(string path, HttpContent? data = null)
+        {
+            return await SendAsync(HttpMethod.Delete, path, data);
+        }
+
+        /// <summary>
+        /// Do a request to the specified path with the data.
+        /// </summary>
+        /// <param name="method">
+        /// The method to use for the request.
+        /// </param>
+        /// <param name="path">
+        /// The path to do a request to.
+        /// </param>
+        /// <param name="data">
+        /// The data to send to the server.
+        /// </param>
+        /// <returns>
+        /// The result of the request.
+        /// </returns>
+        public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? data)
+        {
+            var fullUri = new Uri(_client.BaseAddress ?? new Uri(""), path);
+            var request = new HttpRequestMessage(method, fullUri);
+
+            if (data != null)
+                request.Content = data;
+
+            var collection = _container.GetCookies(fullUri);
+            if (collection.Count > 0)
+                request.Headers.Add("Cookie", GetCookieStrings(collection));
+
+            var response = await _client.SendAsync(request);
+
+            if (!response.Headers.Contains("Set-Cookie"))
+                return response;
+
+            foreach (var s in response.Headers.GetValues("Set-Cookie"))
+                _container.SetCookies(fullUri, s);
+
+            return response;
+        }
+
+        /// <summary>
         /// Deserialize the content of the message.
         /// </summary>
         /// <param name="message">
@@ -41,13 +127,29 @@ namespace Order.Test.CookieHttpClient
         /// </returns>
         public async Task<T?> Deserialize<T>(HttpResponseMessage message)
         {
-            return JsonSerializer.CreateDefault().Deserialize<T>(
-                new JsonTextReader(
-                    new StreamReader(
-                        await message.Content.ReadAsStreamAsync()
-                    )
-                )
+            return JsonSerializer.Deserialize<T>(
+                await message.Content.ReadAsStreamAsync(),
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    IncludeFields = true,
+                }
             );
+        }
+
+        /// <summary>
+        /// Download a file from a path.
+        /// </summary>
+        /// <param name="path">
+        /// The path of the file to download.
+        /// </param>
+        /// <returns>
+        /// The bytes of the file.
+        /// </returns>
+        public Task<byte[]> Download(string path)
+        {
+            var fullUri = new Uri(_client.BaseAddress ?? new Uri(""), path);
+            return _client.GetByteArrayAsync(fullUri);
         }
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Order.Test.Controllers.CategoryController;
 
 namespace Order.Test.Controllers
 {
@@ -15,7 +14,7 @@ namespace Order.Test.Controllers
         protected readonly CookieHttpClient.CookieHttpClient _client;
 
         /// <summary>
-        /// Initialize a new <see cref="CreateCategoriesTest"/>.
+        /// Initialize a new <see cref="BaseTest"/>.
         /// </summary>
         public BaseTest()
         {
@@ -41,6 +40,7 @@ namespace Order.Test.Controllers
             await _client.PostAsync("auth/logout");
             Util.DeleteDatabase();
             Util.DeleteEmails();
+            Util.DeleteImages();
         }
 
         /// <summary>

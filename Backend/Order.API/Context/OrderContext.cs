@@ -17,6 +17,8 @@ namespace Order.API.Context
         public DbSet<OpenSpecification> OpenSpecifications { get; set; }
         public DbSet<OpenSpecificationValue> OpenSpecificationValues { get; set; }
         public DbSet<Product> Products { get; set; }
+        public DbSet<ProductVersion> ProductVersions { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
 
         /// <summary>
         /// Initialize a new <see cref="OrderContext"/> with just the options.
@@ -97,19 +99,30 @@ namespace Order.API.Context
             builder.Entity<OpenSpecificationValue>()
                 .HasKey(openSpecificationValue => new
                 {
-                    openSpecificationValue.ProductName,
+                    openSpecificationValue.ProductId,
+                    openSpecificationValue.ProductVersionNumber,
                     openSpecificationValue.SpecificationName,
                     openSpecificationValue.SubcategoryName,
                     openSpecificationValue.CategoryName,
                     openSpecificationValue.MainCategoryName
                 });
             builder.Entity<Product>()
-                .HasKey(product => new
+                .HasKey(product => product.Id);
+            builder.Entity<Product>()
+                .Property(product => product.Id)
+                .UseIdentityAlwaysColumn();
+            builder.Entity<ProductVersion>()
+                .HasKey(productVersion => new
                 {
-                    product.Name,
-                    product.SubcategoryName,
-                    product.CategoryName,
-                    product.MainCategoryName
+                    productVersion.VersionNumber,
+                    productVersion.ProductId
+                });
+            builder.Entity<ProductImage>()
+                .HasKey(productImage => new
+                {
+                    productImage.Name,
+                    productImage.ProductVersionNumber,
+                    productImage.ProductId
                 });
             builder.Entity<MainCategory>()
                 .Property(mainCategory => mainCategory.Deleted)
@@ -228,7 +241,7 @@ namespace Order.API.Context
                     closedSpecification.MainCategoryName
                 });
             builder.Entity<ClosedSpecificationValue>()
-                .HasMany<Product>(closedSpecificationValue => closedSpecificationValue.Products)
+                .HasMany<ProductVersion>(closedSpecificationValue => closedSpecificationValue.ProductVersions)
                 .WithMany(product => product.ClosedSpecificationValues);
             builder.Entity<ClosedSpecification>()
                 .HasOne<Filter>(closedSpecification => closedSpecification.Filter)
@@ -264,24 +277,38 @@ namespace Order.API.Context
                     openSpecification.CategoryName,
                     openSpecification.MainCategoryName
                 });
-            builder.Entity<Product>()
+            builder.Entity<ProductVersion>()
                 .HasMany<OpenSpecificationValue>(product => product.OpenSpecificationValues)
-                .WithOne(openSpecificationValue => openSpecificationValue.Product)
+                .WithOne(openSpecificationValue => openSpecificationValue.ProductVersion)
                 .HasForeignKey(openSpecificationValue => new
                 {
-                    Name = openSpecificationValue.ProductName,
-                    openSpecificationValue.SubcategoryName,
-                    openSpecificationValue.CategoryName,
-                    openSpecificationValue.MainCategoryName
+                    Id = openSpecificationValue.ProductId,
+                    VersionNumber = openSpecificationValue.ProductVersionNumber
                 })
                 .HasPrincipalKey(product => new
                 {
-                    product.Name,
-                    product.SubcategoryName,
-                    product.CategoryName,
-                    product.MainCategoryName
+                    Id = product.ProductId,
+                    product.VersionNumber
                 });
-                
+            builder.Entity<Product>()
+                .HasMany<ProductVersion>(product => product.ProductVersions)
+                .WithOne(productVersion => productVersion.Product)
+                .HasForeignKey(productVersion => productVersion.ProductId)
+                .HasPrincipalKey(product => product.Id);
+            builder.Entity<ProductVersion>()
+                .HasMany<ProductImage>(productVersion => productVersion.ProductImages)
+                .WithOne(productImage => productImage.ProductVersion)
+                .HasForeignKey(productImage => new
+                {
+                    productImage.ProductId,
+                    VersionNumber = productImage.ProductVersionNumber
+                })
+                .HasPrincipalKey(productVersion => new
+                {
+                    productVersion.ProductId,
+                    productVersion.VersionNumber
+                });
+
             base.OnModelCreating(builder);
         }
     }

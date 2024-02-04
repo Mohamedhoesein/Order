@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using MimeKit;
 using Order.API.Context;
@@ -33,6 +34,7 @@ namespace Order.API
             ConfigureEmail(services);
             ConfigureCors(services);
             ConfigureOtherServices(services);
+            services.AddSingleton(Configuration["StaticFile"]);
         }
 
         private void ConfigureDatabase(IServiceCollection services)
@@ -89,6 +91,8 @@ namespace Order.API
             var from = new MailboxAddress(email.DisplayName, email.Email);
             var sender = new MailSender(client, from, email);
 
+            if (email.DropEmailDirectory != "")
+                new DirectoryInfo(email.DropEmailDirectory).Create();
             services.AddSingleton(email);
             services.AddSingleton(sender);
         }
@@ -161,7 +165,15 @@ namespace Order.API
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Order.API v1"));
             }
-            
+
+            var path = Path.Combine(env.ContentRootPath, Configuration["StaticFile"].TrimStart('/'));
+            Directory.CreateDirectory(path);
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(path),
+                RequestPath = Configuration["StaticFile"].TrimEnd('/')
+            });
+
             app.UseHsts();
 
             app.UseCookiePolicy();

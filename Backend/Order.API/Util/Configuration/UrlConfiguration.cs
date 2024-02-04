@@ -19,7 +19,7 @@
         public string Admin { get; set; }
 
         /// <summary>
-        /// Instantiate a new <see cref="UrlConfiguration"/> without any information.
+        /// Initialize a new <see cref="UrlConfiguration"/> without any information.
         /// </summary>
         public UrlConfiguration()
         {
@@ -29,7 +29,7 @@
         }
 
         /// <summary>
-        /// Instantiate a new <see cref="UrlConfiguration"/> with all information.
+        /// Initialize a new <see cref="UrlConfiguration"/> with all information.
         /// </summary>
         /// <param name="api">
         /// The url of the api.

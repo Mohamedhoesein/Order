@@ -41,6 +41,6 @@ namespace Order.API.Context
         /// <summary>
         /// The products this value is associated with.
         /// </summary>
-        public ICollection<Product> Products { get; set; }
+        public ICollection<ProductVersion> ProductVersions { get; set; }
     }
 }

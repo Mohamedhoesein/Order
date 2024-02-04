@@ -14,18 +14,13 @@ namespace Order.API.Controllers.CategoryController
     [ApiController]
     public class CategoryController : BaseController
     {
-        private readonly OrderContext _orderContext;
-
         /// <summary>
         /// Initialize a new <see cref="CategoryController"/> with the required information.
         /// </summary>
         /// <param name="orderContext">
         /// The <see cref="OrderContext"/> used to handle database access.
         /// </param>
-        public CategoryController(OrderContext orderContext)
-        {
-            _orderContext = orderContext;
-        }
+        public CategoryController(OrderContext orderContext) : base(orderContext){}
 
         /// <summary>
         /// Get the categories stored in the database.
@@ -549,26 +544,6 @@ namespace Order.API.Controllers.CategoryController
                 return NotFound();
             MarkSubcategoryDeleted(currentSubcategory);
             return Save();
-        }
-
-        /// <summary>
-        /// Save the database changes, and return an appropriate <see cref="IActionResult"/>.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="OkResult"/> if the save was successful,
-        /// or an <see cref="ObjectResult"/> with a 500 status code if the save failed due to an exception.
-        /// </returns>
-        private IActionResult Save()
-        {
-            try
-            {
-                _orderContext.SaveChanges();
-                return Ok();
-            }
-            catch (Exception)
-            {
-                return NewStatusCode(500);
-            }
         }
 
         /// <summary>

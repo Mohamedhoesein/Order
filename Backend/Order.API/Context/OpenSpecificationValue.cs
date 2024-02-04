@@ -34,12 +34,16 @@ namespace Order.API.Context
         /// </summary>
         public OpenSpecification OpenSpecification { get; set; }
         /// <summary>
-        /// The name of the product this value is associated with.
+        /// The id of the product this value is associated with.
         /// </summary>
-        public string ProductName { get; set; }
+        public long ProductId { get; set; }
+        /// <summary>
+        /// The version of the product this value is associated with.
+        /// </summary>
+        public long ProductVersionNumber { get; set; }
         /// <summary>
         /// The product this value is associated with.
         /// </summary>
-        public Product Product { get; set; }
+        public ProductVersion ProductVersion { get; set; }
     }
 }

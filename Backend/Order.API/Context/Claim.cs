@@ -52,13 +52,21 @@ namespace Order.API.Context
         /// </summary>
         public const string NotAccountCreateEmployeeClaim = $"!{AccountCreateEmployeeClaim}";
         /// <summary>
-        /// The name of the authorization policy for having the Controller.Manage permission. 
+        /// The name of the authorization policy for having the Controller.Manage permission.
         /// </summary>
         public const string CategoryManageClaim = "Controller.Manage";
         /// <summary>
-        /// The name of the authorization policy for not having the Controller.Manage permission. 
+        /// The name of the authorization policy for not having the Controller.Manage permission.
         /// </summary>
         public const string NotCategoryManageClaim = $"!{CategoryManageClaim}";
+        /// <summary>
+        /// The name of the authorization policy for having the Product.Manage permission.
+        /// </summary>
+        public const string ProductManageClaim = "Product.Manage";
+        /// <summary>
+        /// The name of the authorization policy for not having the Product.Manage permission.
+        /// </summary>
+        public const string NotProductManageClaim = $"!{ProductManageClaim}";
 
         /// <summary>
         /// The claim for the Employee permission.
@@ -84,5 +92,9 @@ namespace Order.API.Context
         /// The claim for the Controller.Manage permission.
         /// </summary>
         public static Claim CategoryManage { get; } = new(Type, CategoryManageClaim);
+        /// <summary>
+        /// The claim for the Product.Manage permission.
+        /// </summary>
+        public static Claim ProductManage { get; } = new(Type, ProductManageClaim);
     }
 }

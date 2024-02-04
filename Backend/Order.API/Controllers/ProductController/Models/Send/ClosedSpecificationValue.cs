@@ -1,4 +1,4 @@
-namespace Order.API.Controllers.CategoryController.Models
+namespace Order.API.Controllers.ProductController.Models.Send
 {
     /// <summary>
     /// A value for a closed specification.
@@ -6,16 +6,16 @@ namespace Order.API.Controllers.CategoryController.Models
     public class ClosedSpecificationValue
     {
         /// <summary>
+        /// The name of the specification.
+        /// </summary>
+        public string Specification { get; set; }
+        /// <summary>
         /// The value of the specification.
         /// </summary>
         public string Value { get; set; }
-        /// <summary>
-        /// If the value is deleted.
-        /// </summary>
-        public bool Deleted { get; set; }
 
         /// <summary>
-        /// Initialize a new <see cref="ClosedSpecificationValue"/>.
+        /// Initialize a new empty <see cref="ClosedSpecificationValue"/>.
         /// </summary>
         public ClosedSpecificationValue() {}
 
@@ -27,8 +27,8 @@ namespace Order.API.Controllers.CategoryController.Models
         /// </param>
         public ClosedSpecificationValue(Context.ClosedSpecificationValue value)
         {
+            Specification = value.SpecificationName;
             Value = value.Value;
-            Deleted = value.Deleted;
         }
     }
 }

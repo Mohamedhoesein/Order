@@ -113,6 +113,57 @@ namespace Order.Test.CookieHttpClient
         }
 
         /// <summary>
+        /// Restore a main category.
+        /// </summary>
+        /// <param name="mainCategory">
+        /// The name of the main category.
+        /// </param>
+        /// <returns>
+        /// The <see cref="HttpResponseMessage"/> representing the result of the main category deletion.
+        /// </returns>
+        public async Task<HttpResponseMessage> RestoreMainCategory(string mainCategory)
+        {
+            return await PostAsync($"category/restore/{mainCategory}");
+        }
+
+        /// <summary>
+        /// Restore a category.
+        /// </summary>
+        /// <param name="mainCategory">
+        /// The name of the associated main category.
+        /// </param>
+        /// <param name="category">
+        /// The name of the category.
+        /// </param>
+        /// <returns>
+        /// The <see cref="HttpResponseMessage"/> representing the result of the category deletion.
+        /// </returns>
+        public async Task<HttpResponseMessage> RestoreCategory(string mainCategory, string category)
+        {
+            return await PostAsync($"category/restore/{mainCategory}/{category}");
+        }
+
+        /// <summary>
+        /// Restore a subcategory.
+        /// </summary>
+        /// <param name="mainCategory">
+        /// The name of the associated main category.
+        /// </param>
+        /// <param name="category">
+        /// The name of the associated category.
+        /// </param>
+        /// <param name="subcategory">
+        /// The name of the subcategory.
+        /// </param>
+        /// <returns>
+        /// The <see cref="HttpResponseMessage"/> representing the result of the subcategory deletion.
+        /// </returns>
+        public async Task<HttpResponseMessage> RestoreSubCategory(string mainCategory, string category, string subcategory)
+        {
+            return await PostAsync($"category/restore/{mainCategory}/{category}/{subcategory}");
+        }
+
+        /// <summary>
         /// Get the categories for the employees.
         /// </summary>
         /// <returns>

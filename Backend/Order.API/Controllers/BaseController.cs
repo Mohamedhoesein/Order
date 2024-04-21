@@ -49,9 +49,8 @@ namespace Order.API.Controllers
                 _orderContext.SaveChanges();
                 return Ok();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return StatusCode(500, e.ToString());
                 return NewStatusCode(500);
             }
         }

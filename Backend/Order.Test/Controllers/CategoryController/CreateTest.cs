@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Order.Test.Controllers.CategoryController
 {
     /// <summary>
-    /// Tests creating categories.
+    /// Tests for creating categories.
     /// </summary>
     [TestClass]
     public class CreateTest : BaseTest

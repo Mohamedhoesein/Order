@@ -242,7 +242,7 @@ namespace Order.API.Controllers.CategoryController
 
             if (!currentCategory.Deleted)
                 return BadRequest();
-            currentCategory.Deleted = false;
+
             return Save();
         }
 
@@ -290,7 +290,7 @@ namespace Order.API.Controllers.CategoryController
 
             if (!currentSubcategory.Deleted)
                 return BadRequest();
-            currentSubcategory.Deleted = false;
+
             return Save();
         }
 
@@ -333,7 +333,7 @@ namespace Order.API.Controllers.CategoryController
                                                       currentSubcategory.MainCategoryName == mainCategory);
             if (currentSubcategory == null)
                 return NotFound();
-            currentSubcategory.Deleted = false;
+
             var openSpecifications = currentSubcategory.OpenSpecifications.Select(specification => specification.Name).ToList();
             currentSubcategory.OpenSpecifications = currentSubcategory.OpenSpecifications.Select(specification =>
             {
@@ -455,7 +455,7 @@ namespace Order.API.Controllers.CategoryController
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpDelete("{mainCategory}")]
+        [HttpDelete("employee/{mainCategory}")]
         public IActionResult DeleteMainCategory([FromRoute] string mainCategory)
         {
             var currentMainCategory = _orderContext.MainCategories
@@ -492,7 +492,7 @@ namespace Order.API.Controllers.CategoryController
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpDelete("{mainCategory}/{category}")]
+        [HttpDelete("employee/{mainCategory}/{category}")]
         public IActionResult DeleteCategory([FromRoute] string mainCategory, [FromRoute] string category)
         {
             var currentCategory = _orderContext.Categories
@@ -529,7 +529,7 @@ namespace Order.API.Controllers.CategoryController
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpDelete("{mainCategory}/{category}/{subcategory}")]
+        [HttpDelete("employee/{mainCategory}/{category}/{subcategory}")]
         public IActionResult DeleteSubcategory([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory)
         {
             var currentSubcategory = _orderContext.Subcategories
@@ -543,6 +543,96 @@ namespace Order.API.Controllers.CategoryController
             if (currentSubcategory == null)
                 return NotFound();
             MarkSubcategoryDeleted(currentSubcategory);
+            return Save();
+        }
+
+        /// <summary>
+        /// Restore a deleted main category.
+        /// </summary>
+        /// <param name="mainCategory">
+        /// The name of the associated main category.
+        /// </param>
+        /// <returns>
+        /// An <see cref="OkResult"/> if the subcategory is restored,
+        /// an <see cref="NotFoundResult"/> if the subcategory does not exist,
+        /// or an <see cref="ObjectResult"/> with a 500 status code if the deletion fails.
+        /// </returns>
+        [EnableCors(Cors.AllowAdmin)]
+        [Authorize(Policy = Claims.EmployeeClaim)]
+        [Authorize(Policy = Claims.CategoryManageClaim)]
+        [HttpPost("employee/restore/{mainCategory}")]
+        public IActionResult RestoreMainCategory([FromRoute] string mainCategory)
+        {
+            var currentMainCategory = _orderContext.MainCategories
+                .FirstOrDefault(currentMainCategory => currentMainCategory.Name == mainCategory);
+
+            if (currentMainCategory == null)
+                return NotFound();
+            currentMainCategory.Deleted = false;
+            return Save();
+        }
+
+        /// <summary>
+        /// Restore a deleted category.
+        /// </summary>
+        /// <param name="mainCategory">
+        /// The name of the associated main category.
+        /// </param>
+        /// <param name="category">
+        /// The name of the associated category.
+        /// </param>
+        /// <returns>
+        /// An <see cref="OkResult"/> if the subcategory is restored,
+        /// an <see cref="NotFoundResult"/> if the subcategory does not exist,
+        /// or an <see cref="ObjectResult"/> with a 500 status code if the deletion fails.
+        /// </returns>
+        [EnableCors(Cors.AllowAdmin)]
+        [Authorize(Policy = Claims.EmployeeClaim)]
+        [Authorize(Policy = Claims.CategoryManageClaim)]
+        [HttpPost("employee/restore/{mainCategory}/{category}")]
+        public IActionResult RestoreCategory([FromRoute] string mainCategory, [FromRoute] string category)
+        {
+            var currentCategory = _orderContext.Categories
+                .FirstOrDefault(currentCategory => currentCategory.MainCategoryName == mainCategory &&
+                                                   currentCategory.Name == category);
+
+            if (currentCategory == null)
+                return NotFound();
+            currentCategory.Deleted = false;
+            return Save();
+        }
+
+        /// <summary>
+        /// Restore a deleted subcategory.
+        /// </summary>
+        /// <param name="mainCategory">
+        /// The name of the associated main category.
+        /// </param>
+        /// <param name="category">
+        /// The name of the associated category.
+        /// </param>
+        /// <param name="subcategory">
+        /// The name of the subcategory to delete.
+        /// </param>
+        /// <returns>
+        /// An <see cref="OkResult"/> if the subcategory is restored,
+        /// an <see cref="NotFoundResult"/> if the subcategory does not exist,
+        /// or an <see cref="ObjectResult"/> with a 500 status code if the deletion fails.
+        /// </returns>
+        [EnableCors(Cors.AllowAdmin)]
+        [Authorize(Policy = Claims.EmployeeClaim)]
+        [Authorize(Policy = Claims.CategoryManageClaim)]
+        [HttpPost("employee/restore/{mainCategory}/{category}/{subcategory}")]
+        public IActionResult RestoreSubcategory([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory)
+        {
+            var currentSubcategory = _orderContext.Subcategories
+                .FirstOrDefault(currentSubcategory => currentSubcategory.MainCategoryName == mainCategory &&
+                                                   currentSubcategory.CategoryName == category &&
+                                                   currentSubcategory.Name == subcategory);
+
+            if (currentSubcategory == null)
+                return NotFound();
+            currentSubcategory.Deleted = false;
             return Save();
         }
 

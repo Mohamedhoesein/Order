@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NuGet.Protocol;
 using Order.API.Controllers.CategoryController.Models;
 using Order.API.Controllers.CategoryController.Models.Send;
 

@@ -5,16 +5,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Order.Test.Controllers.CategoryController
 {
     /// <summary>
-    /// Tests for deleting categories.
+    /// Tests for restoring categories.
     /// </summary>
     [TestClass]
-    public class DeleteTest : BaseTest
+    public class RestoreTest : BaseTest
     {
         /// <summary>
-        /// Test if a main category is deleted.
+        /// Test if a main category is restored.
         /// </summary>
         [TestMethod]
-        public async Task DeleteMainCategory_Success()
+        public async Task RestoreMainCategory_Success()
         {
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
@@ -30,36 +30,39 @@ namespace Order.Test.Controllers.CategoryController
 
             var deleteResult = await _client.DeleteMainCategory("TestMainCategory");
             Assert.AreEqual(HttpStatusCode.OK, deleteResult.StatusCode);
+
+            var restoreResult = await _client.RestoreMainCategory("TestMainCategory");
+            Assert.AreEqual(HttpStatusCode.OK, restoreResult.StatusCode);
         }
 
         /// <summary>
-        /// Test if an unauthorized response is returned when deleting a main category if not logged in.
+        /// Test if an unauthorized response is returned when restoring a main category if not logged in.
         /// </summary>
         [TestMethod]
-        public async Task DeleteMainCategory_Error_Unauthorized()
+        public async Task RestoreMainCategory_Unauthorized()
         {
-            var deleteResult = await _client.DeleteMainCategory("TestMainCategory");
-            Assert.AreEqual(HttpStatusCode.Unauthorized, deleteResult.StatusCode);
+            var restoreResult = await _client.RestoreMainCategory("TestMainCategory");
+            Assert.AreEqual(HttpStatusCode.Unauthorized, restoreResult.StatusCode);
         }
 
         /// <summary>
-        /// Test if a not found response is returned when deleting a main category if it does not exist.
+        /// Test if a not found response is returned when restoring a main category if it does not exist.
         /// </summary>
         [TestMethod]
-        public async Task DeleteMainCategory_Error_NotFound()
+        public async Task RestoreMainCategory_NotFound()
         {
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
 
-            var deleteResult = await _client.DeleteMainCategory("TestMainCategory");
-            Assert.AreEqual(HttpStatusCode.NotFound, deleteResult.StatusCode);
+            var restoreResult = await _client.RestoreMainCategory("TestMainCategory");
+            Assert.AreEqual(HttpStatusCode.NotFound, restoreResult.StatusCode);
         }
 
         /// <summary>
-        /// Test if a category is deleted.
+        /// Test if a category is restored.
         /// </summary>
         [TestMethod]
-        public async Task DeleteCategory_Success()
+        public async Task RestoreCategory_Success()
         {
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
@@ -75,36 +78,39 @@ namespace Order.Test.Controllers.CategoryController
 
             var deleteResult = await _client.DeleteCategory("TestMainCategory", "TestCategory");
             Assert.AreEqual(HttpStatusCode.OK, deleteResult.StatusCode);
+
+            var restoreResult = await _client.RestoreCategory("TestMainCategory", "TestCategory");
+            Assert.AreEqual(HttpStatusCode.OK, restoreResult.StatusCode);
         }
 
         /// <summary>
-        /// Test if an unauthorized response is returned when deleting a category if not logged in.
+        /// Test if an unauthorized response is returned when restoring a category if not logged in.
         /// </summary>
         [TestMethod]
-        public async Task DeleteCategory_Error_Unauthorized()
+        public async Task RestoreCategory_Unauthorized()
         {
-            var deleteResult = await _client.DeleteCategory("TestMainCategory", "TestCategory");
-            Assert.AreEqual(HttpStatusCode.Unauthorized, deleteResult.StatusCode);
+            var restoreResult = await _client.RestoreCategory("TestMainCategory", "TestCategory");
+            Assert.AreEqual(HttpStatusCode.Unauthorized, restoreResult.StatusCode);
         }
 
         /// <summary>
-        /// Test if a not found response is returned when deleting a category if it does not exist.
+        /// Test if a not found response is returned when restoring a category if it does not exist.
         /// </summary>
         [TestMethod]
-        public async Task DeleteCategory_Error_NotFound()
+        public async Task RestoreCategory_Notfound()
         {
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
 
-            var deleteResult = await _client.DeleteCategory("TestMainCategory", "TestCategory");
-            Assert.AreEqual(HttpStatusCode.NotFound, deleteResult.StatusCode);
+            var restoreResult = await _client.RestoreCategory("TestMainCategory", "TestCategory");
+            Assert.AreEqual(HttpStatusCode.NotFound, restoreResult.StatusCode);
         }
 
         /// <summary>
-        /// Test if a subcategory is deleted.
+        /// Test if a subcategory is restored.
         /// </summary>
         [TestMethod]
-        public async Task DeleteSubcategory_Success()
+        public async Task RestoreSubcategory_Success()
         {
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
@@ -120,29 +126,32 @@ namespace Order.Test.Controllers.CategoryController
 
             var deleteResult = await _client.DeleteSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
             Assert.AreEqual(HttpStatusCode.OK, deleteResult.StatusCode);
+
+            var restoreResult = await _client.RestoreSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
+            Assert.AreEqual(HttpStatusCode.OK, restoreResult.StatusCode);
         }
 
         /// <summary>
-        /// Test if an unauthorized response is returned when deleting a subcategory if not logged in.
+        /// Test if an unauthorized response is returned when restoring a subcategory if not logged in.
         /// </summary>
         [TestMethod]
-        public async Task DeleteSubcategory_Error_Unauthorized()
+        public async Task RestoreSubcategory_Unauthorized()
         {
-            var deleteResult = await _client.DeleteSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
-            Assert.AreEqual(HttpStatusCode.Unauthorized, deleteResult.StatusCode);
+            var restoreResult = await _client.RestoreSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
+            Assert.AreEqual(HttpStatusCode.Unauthorized, restoreResult.StatusCode);
         }
 
         /// <summary>
-        /// Test if a not found response is returned when deleting a subcategory if it does not exist.
+        /// Test if a not found response is returned when restoring a subcategory if it does not exist.
         /// </summary>
         [TestMethod]
-        public async Task DeleteSubcategory_Error_NotFound()
+        public async Task RestoreSubcategory_NotFound()
         {
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
 
-            var deleteResult = await _client.DeleteSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
-            Assert.AreEqual(HttpStatusCode.NotFound, deleteResult.StatusCode);
+            var restoreResult = await _client.RestoreSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
+            Assert.AreEqual(HttpStatusCode.NotFound, restoreResult.StatusCode);
         }
     }
 }

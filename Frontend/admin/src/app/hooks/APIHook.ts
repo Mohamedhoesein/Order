@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios, {AxiosError} from "axios";
 
 const endpoint = import.meta.env.VITE_APP_ENDPOINT;
 const authEndpoint = `${endpoint}auth/`;
+const categoryEndpoint = `${endpoint}category/`;
 const instance = axios.create({
     baseURL: endpoint
 });
@@ -68,32 +69,81 @@ export interface ChangePassword {}
 
 export interface VerifyResult {}
 
-export const isLogInModelError = (data: LogInModelError | LogInError | undefined) => {
+export interface ClosedSpecificationValue {
+    value: string,
+    deleted: boolean
+}
+
+export interface ClosedSpecification {
+    name: string,
+    deleted: boolean,
+    filter: string | null,
+    values: ClosedSpecificationValue[]
+}
+
+export interface OpenSpecification {
+    name: string,
+    deleted: boolean
+}
+
+export interface WholeCategory {
+    name: string,
+    deleted: boolean,
+    closedSpecifications: ClosedSpecification[],
+    openSpecifications: OpenSpecification[]
+}
+
+export interface ClosedSpecificationUpdate {}
+
+export interface ClosedSpecificationError {
+    category: string[],
+    filter: string[],
+    deleted: string[],
+    values: string[]
+}
+
+export interface OpenSpecificationUpdate {}
+
+export interface OpenSpecificationError {
+    category: string[],
+    filter: string[],
+    deleted: string[]
+}
+
+export const isLogInModelError = (data: LogIn | LogInModelError | LogInError | undefined) => {
     return data !== undefined && typeof data === "object" && "password" in data && "email" in data;
 };
 
-export const isLogInError = (data: LogInModelError | LogInError | undefined) => {
+export const isLogInError = (data: LogIn | LogInModelError | LogInError | undefined) => {
     return data !== undefined && typeof data === "object" && "error" in data;
 }
 
-export const isRegisterError = (data: RegisterError | undefined) => {
+export const isRegisterError = (data: Register | RegisterError | undefined) => {
     return data !== undefined && typeof data === "object" && "Name" in data && "address" in data && "email" in data && "password" in data && "confirmPassword" in data;
 };
 
-export const isForgotPasswordError = (data: ForgotPasswordError | undefined) => {
+export const isForgotPasswordError = (data: ForgotPassword | ForgotPasswordError | undefined) => {
     return data !== undefined && typeof data === "object" && "email" in data;
 };
 
-export const isUpdateAccountError = (data: UpdateAccountError | undefined) => {
+export const isUpdateAccountError = (data: UpdateAccount | UpdateAccountError | undefined) => {
     return data !== undefined && typeof data === "object" && "Name" in data && "address" in data && "email" in data && "password" in data;
 };
 
-export const isPasswordError = (data: PasswordError | undefined) => {
+export const isPasswordError = (data: Password | PasswordError | undefined) => {
     return data !== undefined && typeof data === "object" && "password" in data;
 };
 
-export const isChangePasswordError = (data: ChangePasswordError | ChangePassword | undefined) => {
+export const isChangePasswordError = (data: ChangePassword | ChangePasswordError | undefined) => {
     return data !== undefined && typeof data === "object" && "password" in data && "confirmPassword" in data;
+};
+
+export const isClosedSpecificationError = (data: ClosedSpecificationUpdate | ClosedSpecificationError | undefined) => {
+    return data !== undefined && typeof data === "object" && "category" in data && "filter" in data && "deleted" in data && "values" in data;
+};
+
+export const isOpenSpecificationError = (data: OpenSpecificationUpdate | OpenSpecificationError | undefined) => {
+    return data !== undefined && typeof data === "object" && "category" in data && "filter" in data && "deleted" in data;
 };
 
 export const useRegister = (name: string, address: string, email: string, password: string, confirmPassword: string, enabled: boolean) => {
@@ -164,7 +214,7 @@ export const useLogOut = (enabled: boolean) => {
     return useQuery({
         queryKey: ["logout"],
         queryFn: async () => {
-            return instance.post(
+            return instance.post<{}, AxiosError<{}>>(
                 `${authEndpoint}logout`,
                 {},
                 {
@@ -239,10 +289,10 @@ export const useChangedPassword = (id: string, token: string, password: string, 
         queryFn: async () => {
             return instance.post<ChangePassword>(
                 `${authEndpoint}change-password/${id}/${token}`,
-                {
+                JSON.stringify({
                     Password: password,
                     ConfirmPassword: confirmPassword
-                },
+                }),
                 {
                     withCredentials: true,
                 }
@@ -307,6 +357,188 @@ export const useDeleteAccount = (password: string, enabled: boolean) => {
                     data: JSON.stringify({
                         Password: password
                     })
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useGetCategories = (enabled: boolean) => {
+    return useQuery({
+        queryKey: ["getCategories"],
+        queryFn: async () => {
+            return instance.get<WholeCategory[]>(
+                `${categoryEndpoint}employee`,
+                {
+                    withCredentials: true
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useAddCategory = (category: string, enabled: boolean) => {
+    return useQuery<{}, AxiosError<{}>>({
+        queryKey: ["addCategory"],
+        queryFn: async () => {
+            return instance.post<{}>(
+                `${categoryEndpoint}employee/${category}`,
+                {},
+                {
+                    withCredentials: true
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useUpdateCategory = (oldName: string, newName: string, enabled: boolean) => {
+    return useQuery<{}, AxiosError<{}>>({
+        queryKey: ["updateCategory"],
+        queryFn: async () => {
+            return instance.post<{}>(
+                `${categoryEndpoint}employee/${oldName}/update/${newName}`,
+                {},
+                {
+                    withCredentials: true
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useAddOverwriteClosedSpecification = (category: string, name: string, filter: string | null, deleted: boolean, values: ClosedSpecificationValue[], enabled: boolean) => {
+    return useQuery<ClosedSpecificationUpdate, AxiosError<ClosedSpecificationError>>({
+        queryKey: ["addOverwriteClosedSpecification"],
+        queryFn: async () => {
+            return instance.post<{}>(
+                `${categoryEndpoint}employee/${category}/closed`,
+                JSON.stringify({
+                    Name: name,
+                    Filter: filter,
+                    Deleted: deleted,
+                    Values: values
+                }),
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useRenameClosedSpecification = (category: string, oldName: string, newName: string, enabled: boolean) => {
+    return useQuery<{}, AxiosError<{}>>({
+        queryKey: ["renameClosedSpecification"],
+        queryFn: async () => {
+            return instance.post<{}>(
+                `${categoryEndpoint}employee/${category}/closed/update/${oldName}/${newName}`,
+                {},
+                {
+                    withCredentials: true
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useRenameClosedSpecificationValue = (category: string, specification: string, oldName: string, newName: string, enabled: boolean) => {
+    return useQuery<{}, AxiosError<{}>>({
+        queryKey: ["renameClosedSpecificationValue"],
+        queryFn: async () => {
+            return instance.post<{}>(
+                `${categoryEndpoint}employee/${category}/closed/value/${specification}/${oldName}/${newName}`,
+                {},
+                {
+                    withCredentials: true
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useAddOverwriteOpenSpecification = (category: string, name: string, deleted: boolean, enabled: boolean) => {
+    return useQuery<OpenSpecificationUpdate, AxiosError<OpenSpecificationError>>({
+        queryKey: ["addOverwriteOpenSpecification"],
+        queryFn: async () => {
+            return instance.post<{}>(
+                `${categoryEndpoint}employee/${category}/open`,
+                JSON.stringify({
+                    Name: name,
+                    Deleted: deleted
+                }),
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useRenameOpenSpecification = (category: string, oldName: string, newName: string | null, enabled: boolean) => {
+    return useQuery<{}, AxiosError<{}>>({
+        queryKey: ["renameOpenSpecification"],
+        queryFn: async () => {
+            return instance.post<{}>(
+                `${categoryEndpoint}employee/${category}/open/update/${oldName}/${newName}`,
+                {},
+                {
+                    withCredentials: true
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useDeleteCategory = (category: string, enabled: boolean) => {
+    return useQuery<{}, AxiosError<{}>>({
+        queryKey: ["deleteCategory"],
+        queryFn: async () => {
+            return instance.delete<{}>(
+                `${categoryEndpoint}employee/${category}`,
+                {
+                    withCredentials: true
+                }
+            );
+        },
+        enabled: enabled,
+        retry: 2
+    });
+}
+
+export const useRestoreCategory = (category: string, enabled: boolean) => {
+    return useQuery<{}, AxiosError<{}>>({
+        queryKey: ["restoreCategory"],
+        queryFn: async () => {
+            return instance.post<{}>(
+                `${categoryEndpoint}employee/${category}/restore`,
+                {},
+                {
+                    withCredentials: true
                 }
             );
         },

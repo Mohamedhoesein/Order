@@ -8,31 +8,27 @@ namespace Order.API.Context
     public class Filter
     {
         /// <summary>
+        /// The id of the filter.
+        /// </summary>
+        public int Id { get; set; }
+        /// <summary>
         /// The title for the filter.
         /// </summary>
         [Required]
         public string Title { get; set; }
 
         /// <summary>
-        /// The name of the subcategory this filter is associated with.
+        /// The id of the category this filter is associated with.
         /// </summary>
-        public string SubcategoryName { get; set; }
+        public int CategoryId { get; set; }
         /// <summary>
-        /// The name of the category the subcategory is associated with.
+        /// The id of the category this filter is associated with.
         /// </summary>
-        public string CategoryName { get; set; }
+        public Category Category { get; set; }
         /// <summary>
-        /// The name of the main category the category is associated with.
+        /// The id of the closed specification this filter is associated with.
         /// </summary>
-        public string MainCategoryName { get; set; }
-        /// <summary>
-        /// The id of the subcategory this filter is associated with.
-        /// </summary>
-        public Subcategory Subcategory { get; set; }
-        /// <summary>
-        /// The name of the closed specification this filter is associated with.
-        /// </summary>
-        public string ClosedSpecificationName { get; set; }
+        public int SpecificationId { get; set; }
         /// <summary>
         /// The closed specification this filter is associated with.
         /// </summary>

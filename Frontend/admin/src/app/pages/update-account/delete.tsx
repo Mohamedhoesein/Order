@@ -59,7 +59,7 @@ export const Delete = () => {
                 setCurrentState(partialState);
             }
         }
-    }, [state, isLoading, isSuccess, data, navigate, error, setState]);
+    }, [state, isLoading, isSuccess, data, error, navigate, setState]);
 
     const submit = () => {
         submitValidate(Keys, state, setCurrentState);

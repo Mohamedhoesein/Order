@@ -21,24 +21,22 @@ namespace Order.Test.Controllers.ProductController
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
 
-            var createMainResult = await _client.CreateMainCategory("TestMainCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createMainResult.StatusCode);
-
-            var createCategoryResult = await _client.CreateCategory("TestMainCategory", "TestCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createCategoryResult.StatusCode);
-
-            var createSubResult = await _client.CreateSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
+            var createSubResult = await _client.CreateCategory("TestCategory");
             Assert.AreEqual(HttpStatusCode.OK, createSubResult.StatusCode);
 
-            var updateSubResult = await _client.UpdateSubcategory("TestMainCategory", "TestCategory", "TestSubcategory", Util.SimpleSubcategory);
-            Assert.AreEqual(HttpStatusCode.OK, updateSubResult.StatusCode);
+            var updateResult1 = await _client.AddOverwriteClosedSpecification("TestCategory", Util.ClosedSpecification1);
+            Assert.AreEqual(HttpStatusCode.OK, updateResult1.StatusCode);
+
+            var updateResult2 = await _client.AddOverwriteClosedSpecification("TestCategory", Util.ClosedSpecification2);
+            Assert.AreEqual(HttpStatusCode.OK, updateResult2.StatusCode);
+
+            var updateResult3 = await _client.AddOverwriteOpenSpecification("TestCategory", Util.OpenSpecification1);
+            Assert.AreEqual(HttpStatusCode.OK, updateResult3.StatusCode);
 
             var product1 = Util.Product;
             product1.Name = "Product";
             var createProductResult1 = await _client.CreateProduct(
-                "TestMainCategory",
                 "TestCategory",
-                "TestSubcategory",
                 Util.Product,
                 new[]
                 {
@@ -61,9 +59,7 @@ namespace Order.Test.Controllers.ProductController
             var product2 = Util.Product;
             product2.Name = "Product1";
             var createProductResult2 = await _client.CreateProduct(
-                "TestMainCategory",
                 "TestCategory",
-                "TestSubcategory",
                 product2,
                 new[]
                 {
@@ -78,7 +74,7 @@ namespace Order.Test.Controllers.ProductController
             await _client.PostAsync("auth/logout");
 
             var getProductsResult =
-                await _client.GetProducts("TestMainCategory", "TestCategory", "TestSubcategory");
+                await _client.GetProducts("TestCategory");
             Assert.AreEqual(HttpStatusCode.OK, getProductsResult.StatusCode);
 
             var products = await _client.Deserialize<EndUserProduct[]>(getProductsResult);
@@ -90,11 +86,9 @@ namespace Order.Test.Controllers.ProductController
             Assert.IsFalse(products[0].Deleted);
             Assert.AreEqual(1UL, products[0].Price);
             Assert.AreEqual("Description", products[0].Description);
-            Assert.AreEqual(2, products[0].ClosedSpecificationValues.Length);
+            Assert.AreEqual(1, products[0].ClosedSpecificationValues.Length);
             Assert.AreEqual("ClosedSpecification1", products[0].ClosedSpecificationValues[0].Specification);
             Assert.AreEqual("Value1", products[0].ClosedSpecificationValues[0].Value);
-            Assert.AreEqual("ClosedSpecification2", products[0].ClosedSpecificationValues[1].Specification);
-            Assert.AreEqual("Value6", products[0].ClosedSpecificationValues[1].Value);
             Assert.AreEqual(1, products[0].OpenSpecificationValues.Length);
             Assert.AreEqual("OpenSpecification1", products[0].OpenSpecificationValues[0].Specification);
             Assert.AreEqual("TEST", products[0].OpenSpecificationValues[0].Value);
@@ -113,24 +107,22 @@ namespace Order.Test.Controllers.ProductController
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
 
-            var createMainResult = await _client.CreateMainCategory("TestMainCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createMainResult.StatusCode);
-
-            var createCategoryResult = await _client.CreateCategory("TestMainCategory", "TestCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createCategoryResult.StatusCode);
-
-            var createSubResult = await _client.CreateSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
+            var createSubResult = await _client.CreateCategory("TestCategory");
             Assert.AreEqual(HttpStatusCode.OK, createSubResult.StatusCode);
 
-            var updateSubResult = await _client.UpdateSubcategory("TestMainCategory", "TestCategory", "TestSubcategory", Util.SimpleSubcategory);
-            Assert.AreEqual(HttpStatusCode.OK, updateSubResult.StatusCode);
+            var updateResult1 = await _client.AddOverwriteClosedSpecification("TestCategory", Util.ClosedSpecification1);
+            Assert.AreEqual(HttpStatusCode.OK, updateResult1.StatusCode);
+
+            var updateResult2 = await _client.AddOverwriteClosedSpecification("TestCategory", Util.ClosedSpecification2);
+            Assert.AreEqual(HttpStatusCode.OK, updateResult2.StatusCode);
+
+            var updateResult3 = await _client.AddOverwriteOpenSpecification("TestCategory", Util.OpenSpecification1);
+            Assert.AreEqual(HttpStatusCode.OK, updateResult3.StatusCode);
 
             var product1 = Util.Product;
             product1.Name = "Product";
             var createProductResult = await _client.CreateProduct(
-                "TestMainCategory",
                 "TestCategory",
-                "TestSubcategory",
                 product1,
                 new[]
                 {
@@ -165,9 +157,7 @@ namespace Order.Test.Controllers.ProductController
             var product2 = Util.Product;
             product2.Name = "Product";
             var createProductResult2 = await _client.CreateProduct(
-                "TestMainCategory",
                 "TestCategory",
-                "TestSubcategory",
                 product2,
                 new[]
                 {
@@ -197,7 +187,7 @@ namespace Order.Test.Controllers.ProductController
             await _client.PostAsync("auth/logout");
 
             var getProductsEmployeeResult =
-                await _client.GetProducts("TestMainCategory", "TestCategory", "TestSubcategory");
+                await _client.GetProducts("TestCategory");
             Assert.AreEqual(HttpStatusCode.OK, getProductsEmployeeResult.StatusCode);
 
             var products = await _client.Deserialize<EndUserProduct[]>(getProductsEmployeeResult);
@@ -208,11 +198,9 @@ namespace Order.Test.Controllers.ProductController
             Assert.IsFalse(products[0].Deleted);
             Assert.AreEqual(1UL, products[0].Price);
             Assert.AreEqual("Description", products[0].Description);
-            Assert.AreEqual(2, products[0].ClosedSpecificationValues.Length);
+            Assert.AreEqual(1, products[0].ClosedSpecificationValues.Length);
             Assert.AreEqual("ClosedSpecification1", products[0].ClosedSpecificationValues[0].Specification);
             Assert.AreEqual("Value1", products[0].ClosedSpecificationValues[0].Value);
-            Assert.AreEqual("ClosedSpecification2", products[0].ClosedSpecificationValues[1].Specification);
-            Assert.AreEqual("Value6", products[0].ClosedSpecificationValues[1].Value);
             Assert.AreEqual(1, products[0].OpenSpecificationValues.Length);
             Assert.AreEqual("OpenSpecification1", products[0].OpenSpecificationValues[0].Specification);
             Assert.AreEqual("TEST", products[0].OpenSpecificationValues[0].Value);
@@ -225,11 +213,9 @@ namespace Order.Test.Controllers.ProductController
             Assert.IsFalse(products[1].Deleted);
             Assert.AreEqual(1UL, products[1].Price);
             Assert.AreEqual("Description", products[1].Description);
-            Assert.AreEqual(2, products[1].ClosedSpecificationValues.Length);
+            Assert.AreEqual(1, products[1].ClosedSpecificationValues.Length);
             Assert.AreEqual("ClosedSpecification1", products[1].ClosedSpecificationValues[0].Specification);
             Assert.AreEqual("Value1", products[1].ClosedSpecificationValues[0].Value);
-            Assert.AreEqual("ClosedSpecification2", products[1].ClosedSpecificationValues[1].Specification);
-            Assert.AreEqual("Value6", products[1].ClosedSpecificationValues[1].Value);
             Assert.AreEqual(1, products[1].OpenSpecificationValues.Length);
             Assert.AreEqual("OpenSpecification1", products[1].OpenSpecificationValues[0].Specification);
             Assert.AreEqual("TEST", products[1].OpenSpecificationValues[0].Value);
@@ -238,69 +224,19 @@ namespace Order.Test.Controllers.ProductController
             CollectionAssert.AreEqual(Util.GetImage(FileType.Dark), await _client.Download(products[0].Images[0].File));
         }
         /// <summary>
-        /// Test if a not found response is returned when the subcategory does not exist.
-        /// </summary>
-
-        [TestMethod]
-        public async Task Error_SubcategoryNotFound()
-        {
-            var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
-            Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
-
-            var createMainResult = await _client.CreateMainCategory("TestMainCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createMainResult.StatusCode);
-
-            var createCategoryResult = await _client.CreateCategory("TestMainCategory", "TestCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createCategoryResult.StatusCode);
-
-            var createSubResult = await _client.CreateSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
-            Assert.AreEqual(HttpStatusCode.OK, createSubResult.StatusCode);
-
-            var getProductResult = await _client.GetProducts("TestMainCategory", "TestCategory", "TEST");
-            Assert.AreEqual(HttpStatusCode.NotFound, getProductResult.StatusCode);
-        }
-
-        /// <summary>
         /// Test if a not found response is returned when the category does not exist.
         /// </summary>
+
         [TestMethod]
         public async Task Error_CategoryNotFound()
         {
             var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
             Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
 
-            var createMainResult = await _client.CreateMainCategory("TestMainCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createMainResult.StatusCode);
-
-            var createCategoryResult = await _client.CreateCategory("TestMainCategory", "TestCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createCategoryResult.StatusCode);
-
-            var createSubResult = await _client.CreateSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
+            var createSubResult = await _client.CreateCategory("TestCategory");
             Assert.AreEqual(HttpStatusCode.OK, createSubResult.StatusCode);
 
-            var getProductResult = await _client.GetProducts("TestMainCategory", "TEST", "TestSubcategory");
-            Assert.AreEqual(HttpStatusCode.NotFound, getProductResult.StatusCode);
-        }
-
-        /// <summary>
-        /// Test if a not found response is returned when the main category does not exist.
-        /// </summary>
-        [TestMethod]
-        public async Task Error_MainCategoryNotFound()
-        {
-            var loginResult = await _client.LoginEmployee("test@test.com", Util.DefaultPassword);
-            Assert.AreEqual(HttpStatusCode.OK, loginResult.StatusCode);
-
-            var createMainResult = await _client.CreateMainCategory("TestMainCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createMainResult.StatusCode);
-
-            var createCategoryResult = await _client.CreateCategory("TestMainCategory", "TestCategory");
-            Assert.AreEqual(HttpStatusCode.OK, createCategoryResult.StatusCode);
-
-            var createSubResult = await _client.CreateSubCategory("TestMainCategory", "TestCategory", "TestSubcategory");
-            Assert.AreEqual(HttpStatusCode.OK, createSubResult.StatusCode);
-
-            var getProductResult = await _client.GetProducts("TEST", "TestCategory", "TestSubcategory");
+            var getProductResult = await _client.GetProducts("TEST");
             Assert.AreEqual(HttpStatusCode.NotFound, getProductResult.StatusCode);
         }
     }

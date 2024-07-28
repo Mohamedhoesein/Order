@@ -27,7 +27,7 @@ namespace Order.API.Controllers.ProductController.Models.Send
         /// </param>
         public OpenSpecificationValue(Context.OpenSpecificationValue value)
         {
-            Specification = value.SpecificationName;
+            Specification = value.OpenSpecification.Name;
             Value = value.Value;
         }
     }

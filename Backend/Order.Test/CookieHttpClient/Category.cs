@@ -11,156 +11,45 @@ namespace Order.Test.CookieHttpClient
     public partial class CookieHttpClient
     {
         /// <summary>
-        /// Create a main category.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the main category.
-        /// </param>
-        /// <returns>
-        /// The <see cref="HttpResponseMessage"/> representing the result of the main category creation.
-        /// </returns>
-        public async Task<HttpResponseMessage> CreateMainCategory(string mainCategory)
-        {
-            return await PostAsync($"category/{mainCategory}");
-        }
-
-        /// <summary>
         /// Create a category.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
         /// The name of the category.
         /// </param>
         /// <returns>
         /// The <see cref="HttpResponseMessage"/> representing the result of the category creation.
         /// </returns>
-        public async Task<HttpResponseMessage> CreateCategory(string mainCategory, string category)
+        public async Task<HttpResponseMessage> CreateCategory(string category)
         {
-            return await PostAsync($"category/{mainCategory}/{category}");
-        }
-
-        /// <summary>
-        /// Create a subcategory.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
-        /// </param>
-        /// <returns>
-        /// The <see cref="HttpResponseMessage"/> representing the result of the subcategory creation.
-        /// </returns>
-        public async Task<HttpResponseMessage> CreateSubCategory(string mainCategory, string category, string subcategory)
-        {
-            return await PostAsync($"category/{mainCategory}/{category}/{subcategory}");
-        }
-
-        /// <summary>
-        /// Delete a main category.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the main category.
-        /// </param>
-        /// <returns>
-        /// The <see cref="HttpResponseMessage"/> representing the result of the main category deletion.
-        /// </returns>
-        public async Task<HttpResponseMessage> DeleteMainCategory(string mainCategory)
-        {
-            return await DeleteAsync($"category/{mainCategory}");
+            return await PostAsync($"category/employee/{category}");
         }
 
         /// <summary>
         /// Delete a category.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
         /// The name of the category.
         /// </param>
         /// <returns>
         /// The <see cref="HttpResponseMessage"/> representing the result of the category deletion.
         /// </returns>
-        public async Task<HttpResponseMessage> DeleteCategory(string mainCategory, string category)
+        public async Task<HttpResponseMessage> DeleteCategory(string category)
         {
-            return await DeleteAsync($"category/{mainCategory}/{category}");
-        }
-
-        /// <summary>
-        /// Delete a subcategory.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
-        /// </param>
-        /// <returns>
-        /// The <see cref="HttpResponseMessage"/> representing the result of the subcategory deletion.
-        /// </returns>
-        public async Task<HttpResponseMessage> DeleteSubCategory(string mainCategory, string category, string subcategory)
-        {
-            return await DeleteAsync($"category/{mainCategory}/{category}/{subcategory}");
-        }
-
-        /// <summary>
-        /// Restore a main category.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the main category.
-        /// </param>
-        /// <returns>
-        /// The <see cref="HttpResponseMessage"/> representing the result of the main category deletion.
-        /// </returns>
-        public async Task<HttpResponseMessage> RestoreMainCategory(string mainCategory)
-        {
-            return await PostAsync($"category/restore/{mainCategory}");
+            return await DeleteAsync($"category/employee/{category}");
         }
 
         /// <summary>
         /// Restore a category.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
         /// The name of the category.
         /// </param>
         /// <returns>
         /// The <see cref="HttpResponseMessage"/> representing the result of the category deletion.
         /// </returns>
-        public async Task<HttpResponseMessage> RestoreCategory(string mainCategory, string category)
+        public async Task<HttpResponseMessage> RestoreCategory(string category)
         {
-            return await PostAsync($"category/restore/{mainCategory}/{category}");
-        }
-
-        /// <summary>
-        /// Restore a subcategory.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
-        /// </param>
-        /// <returns>
-        /// The <see cref="HttpResponseMessage"/> representing the result of the subcategory deletion.
-        /// </returns>
-        public async Task<HttpResponseMessage> RestoreSubCategory(string mainCategory, string category, string subcategory)
-        {
-            return await PostAsync($"category/restore/{mainCategory}/{category}/{subcategory}");
+            return await PostAsync($"category/employee/{category}/restore");
         }
 
         /// <summary>
@@ -175,26 +64,6 @@ namespace Order.Test.CookieHttpClient
         }
 
         /// <summary>
-        /// Get the subcategory for the employees.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
-        /// </param>
-        /// <returns>
-        /// The <see cref="HttpResponseMessage"/> representing the result of the subcategory retrieval.
-        /// </returns>
-        public async Task<HttpResponseMessage> GetSubcategoryAdmin(string mainCategory, string category, string subcategory)
-        {
-            return await GetAsync($"category/employee/{mainCategory}/{category}/{subcategory}");
-        }
-
-        /// <summary>
         /// Get the categories for the end users.
         /// </summary>
         /// <returns>
@@ -206,48 +75,59 @@ namespace Order.Test.CookieHttpClient
         }
 
         /// <summary>
-        /// Get the subcategory for the endusers.
+        /// Update an category.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
+        /// <param name="oldName">
+        /// The old name of the category.
         /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
+        /// <param name="newName">
+        /// The new name of the category.
         /// </param>
         /// <returns>
-        /// The <see cref="HttpResponseMessage"/> representing the result of the subcategory retrieval.
+        /// The <see cref="HttpResponseMessage"/> representing the result of the category update.
         /// </returns>
-        public async Task<HttpResponseMessage> GetSubcategory(string mainCategory, string category, string subcategory)
+        public async Task<HttpResponseMessage> UpdateCategory(string oldName, string newName)
         {
-            return await GetAsync($"category/enduser/{mainCategory}/{category}/{subcategory}");
+            return await PostAsync($"category/employee/{oldName}/update/{newName}");
         }
 
         /// <summary>
-        /// Update an subcategory.
+        /// Add or overwrite an closed specification.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
-        /// The name of the associated category.
+        /// The name of the category to update.
         /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
-        /// </param>
-        /// <param name="wholeSubcategory">
-        /// The data for the subcategory
+        /// <param name="specification">
+        /// The specification data to use.
         /// </param>
         /// <returns>
-        /// The <see cref="HttpResponseMessage"/> representing the result of the subcategory update.
+        /// The <see cref="HttpResponseMessage"/> representing the result of the closed specification update.
         /// </returns>
-        public async Task<HttpResponseMessage> UpdateSubcategory(string mainCategory, string category, string subcategory, WholeSubcategory wholeSubcategory)
+        public async Task<HttpResponseMessage> AddOverwriteClosedSpecification(string category, ClosedSpecification specification)
         {
             return await PostAsync(
-                $"category/{mainCategory}/{category}/{subcategory}/update",
-                JsonContent.Create(wholeSubcategory)
+                $"category/employee/{category}/closed",
+                JsonContent.Create(specification)
+            );
+        }
+
+        /// <summary>
+        /// Add or overwrite an open specification.
+        /// </summary>
+        /// <param name="category">
+        /// The name of the category to update.
+        /// </param>
+        /// <param name="specification">
+        /// The specification data to use.
+        /// </param>
+        /// <returns>
+        /// The <see cref="HttpResponseMessage"/> representing the result of the closed specification update.
+        /// </returns>
+        public async Task<HttpResponseMessage> AddOverwriteOpenSpecification(string category, OpenSpecification specification)
+        {
+            return await PostAsync(
+                $"category/employee/{category}/open",
+                JsonContent.Create(specification)
             );
         }
     }

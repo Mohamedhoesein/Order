@@ -35,14 +35,8 @@ namespace Order.Test.CookieHttpClient
         /// <summary>
         /// Create a product.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The main category for the product.
-        /// </param>
         /// <param name="category">
         /// The category for the product.
-        /// </param>
-        /// <param name="subcategory">
-        /// The subcategory for the product.
         /// </param>
         /// <param name="product">
         /// The product information, <see cref="NewProduct.Images"/> will be ignored and <see cref="files"/> will be used.
@@ -56,7 +50,7 @@ namespace Order.Test.CookieHttpClient
         /// <exception cref="ArgumentOutOfRangeException">
         /// An exception thrown when an <see cref="FileType"/> is invalid.
         /// </exception>
-        public Task<HttpResponseMessage> CreateProduct(string mainCategory, string category, string subcategory, NewProduct product, File[] files)
+        public Task<HttpResponseMessage> CreateProduct(string category, NewProduct product, File[] files)
         {
             var form = new MultipartFormDataContent();
 
@@ -89,7 +83,7 @@ namespace Order.Test.CookieHttpClient
             }
 
             return PostAsync(
-                $"product/employee/{mainCategory}/{category}/{subcategory}",
+                $"product/employee/{category}",
                 form
             );
         }
@@ -180,41 +174,29 @@ namespace Order.Test.CookieHttpClient
         /// <summary>
         /// Get products for employees.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The main category for which to get the products.
-        /// </param>
         /// <param name="category">
         /// The category for which to get the products.
-        /// </param>
-        /// <param name="subcategory">
-        /// The subcategory for which to get the products.
         /// </param>
         /// <returns>
         /// The <see cref="HttpResponseMessage"/> representing the result of the retrieval of the products.
         /// </returns>
-        public Task<HttpResponseMessage> GetEmployeeProducts(string mainCategory, string category, string subcategory)
+        public Task<HttpResponseMessage> GetEmployeeProducts(string category)
         {
-            return GetAsync($"product/employee/{mainCategory}/{category}/{subcategory}");
+            return GetAsync($"product/employee/{category}");
         }
 
         /// <summary>
         /// Get products for end users.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The main category for which to get the products.
-        /// </param>
         /// <param name="category">
         /// The category for which to get the products.
-        /// </param>
-        /// <param name="subcategory">
-        /// The subcategory for which to get the products.
         /// </param>
         /// <returns>
         /// The <see cref="HttpResponseMessage"/> representing the result of the retrieval of the products.
         /// </returns>
-        public Task<HttpResponseMessage> GetProducts(string mainCategory, string category, string subcategory)
+        public Task<HttpResponseMessage> GetProducts(string category)
         {
-            return GetAsync($"product/enduser/{mainCategory}/{category}/{subcategory}");
+            return GetAsync($"product/enduser/{category}");
         }
 
         /// <summary>

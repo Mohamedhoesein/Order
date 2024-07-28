@@ -85,10 +85,14 @@ namespace Order.API
         {
             var email = Configuration.GetSection("EmailConfiguration")
                 .Get<EmailConfiguration>();
-            var client = new SmtpClient();
-            client.Connect(email.Host, email.Port, email.Ssl);
-            client.Authenticate(email.Email, email.Password);
+            SmtpClient? client = null;
             var from = new MailboxAddress(email.DisplayName, email.Email);
+            if (email.SendEmails)
+            {
+                client = new SmtpClient();
+                client.Connect(email.Host, email.Port, email.Ssl);
+                client.Authenticate(email.Email, email.Password);
+            }
             var sender = new MailSender(client, from, email);
 
             if (email.DropEmailDirectory != "")

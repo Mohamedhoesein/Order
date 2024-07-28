@@ -10,7 +10,7 @@ namespace Order.API.Util
     /// </summary>
     public class MailSender
     {
-        private readonly SmtpClient _client;
+        private readonly SmtpClient? _client;
         private readonly MailboxAddress _from;
         private readonly EmailConfiguration _configuration;
 
@@ -26,8 +26,10 @@ namespace Order.API.Util
         /// <param name="configuration">
         /// The email configurations used to determine if the email is actually send and if it is drooped to disk.
         /// </param>
-        public MailSender(SmtpClient client, MailboxAddress from, EmailConfiguration configuration)
+        public MailSender(SmtpClient? client, MailboxAddress from, EmailConfiguration configuration)
         {
+            if (configuration.SendEmails && client == null)
+                throw new ArgumentNullException(nameof(client));
             _client = client;
             _from = from;
             _configuration = configuration;
@@ -70,7 +72,7 @@ namespace Order.API.Util
 
             try
             {
-                await _client.SendAsync(message);
+                await _client?.SendAsync(message);
                 return true;
             }
             catch

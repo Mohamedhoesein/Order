@@ -7,7 +7,7 @@ import {
     defaultPasswordError, emailRegex,
     passwordRegex
 } from "../../utils/constant";
-import { MDBBtn, MDBContainer, MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalHeader, MDBValidation } from "mdb-react-ui-kit";
+import { MDBBtn, MDBContainer, MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalHeader, MDBModalTitle, MDBValidation } from "mdb-react-ui-kit";
 import { Input } from "../../components/form/input/input";
 import { SubmitButton } from "../../components/form/submit-button/submit-button";
 import {
@@ -176,7 +176,10 @@ export const UpdateAccount = () => {
                 <MDBModalDialog>
                     <MDBModalContent>
                         <MDBModalHeader>
-                            <MDBBtn id="close-delete" className="btn-close" color="none" onClick={() => setShowDelete(false)}/>
+                            <MDBModalTitle>
+                                Delete Account
+                            </MDBModalTitle>
+                            <MDBBtn id="close" className="btn-close" color="none" onClick={() => setShowDelete(false)}/>
                         </MDBModalHeader>
                         <MDBModalBody>
                             <Delete/>

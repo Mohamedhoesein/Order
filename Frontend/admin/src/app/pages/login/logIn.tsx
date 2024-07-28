@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MDBValidation } from "mdb-react-ui-kit";
+import { MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalHeader, MDBModalTitle, MDBValidation } from "mdb-react-ui-kit";
 import {FormState, initializeForm, submitValidate} from "../../components/form/types";
 import { Input } from "../../components/form/input/input";
 import { SubmitButton } from "../../components/form/submit-button/submit-button";
@@ -82,13 +82,13 @@ export const LogIn = () => {
         <div
          className="d-flex align-items-center justify-content-center stripes"
          style={{height: "100vh", width: "100vw"}}>
-            <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">Log In</h5>
-                        </div>
-                        <div className="modal-body">
+            <MDBModal open={true} onClose={() => {}}>
+                <MDBModalDialog>
+                    <MDBModalContent>
+                        <MDBModalHeader>
+                            <MDBModalTitle>Log In</MDBModalTitle>
+                        </MDBModalHeader>
+                        <MDBModalBody>
                             <MDBValidation isValidated={true}>
                                 <Input
                                  name="email"
@@ -109,10 +109,10 @@ export const LogIn = () => {
                                  text="Log In"/>
                             </MDBValidation>
                             <a id="forgot-password" href="/forgot-password" className="link">Forgot Password?</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        </MDBModalBody>
+                    </MDBModalContent>
+                </MDBModalDialog>
+            </MDBModal>
         </div>
     );
 };

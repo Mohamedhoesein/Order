@@ -11,12 +11,11 @@ using Microsoft.Extensions.Logging;
 using MimeKit;
 using Order.API;
 using Order.API.Context;
-using Order.API.Controllers.CategoryController.Models;
 using Order.API.Controllers.ProductController.Models.Receive;
 using Order.Test.CookieHttpClient;
-using ClosedSpecification = Order.API.Context.ClosedSpecification;
-using ClosedSpecificationValue = Order.API.Context.ClosedSpecificationValue;
-using OpenSpecification = Order.API.Context.OpenSpecification;
+using ClosedSpecification = Order.API.Controllers.CategoryController.Models.ClosedSpecification;
+using ClosedSpecificationValue = Order.API.Controllers.CategoryController.Models.ClosedSpecificationValue;
+using OpenSpecification = Order.API.Controllers.CategoryController.Models.OpenSpecification;
 using OpenSpecificationValue = Order.API.Controllers.ProductController.Models.Receive.OpenSpecificationValue;
 using Product = Order.API.Controllers.ProductController.Models.Receive.Product;
 
@@ -27,213 +26,52 @@ namespace Order.Test
     /// </summary>
     public static class Util
     {
-        /// <summary>
-        /// A subcategory used by some tests when updating a subcategory.
-        /// </summary>
-        public static readonly WholeSubcategory NewSubcategory = new(new Subcategory
+        public static readonly OpenSpecification OpenSpecification1 = new()
+        {
+            Name = "OpenSpecification1",
+            Deleted = false
+        };
+        public static readonly OpenSpecification OpenSpecification2 = new()
+        {
+            Name = "OpenSpecification2",
+            Deleted = false
+        };
+
+        public static readonly ClosedSpecification ClosedSpecification1 = new()
+        {
+            Name = "ClosedSpecification1",
+            Deleted = false,
+            Values = new List<ClosedSpecificationValue>
             {
-                Name = "TestSubcategory",
-                Deleted = false,
-                OpenSpecifications = new List<OpenSpecification>
+                new()
                 {
-                    new()
-                    {
-                        Name = "OpenSpecification1",
-                        Deleted = false
-                    },
-                    new()
-                    {
-                        Name = "OpenSpecification2",
-                        Deleted = false
-                    },
-                    new()
-                    {
-                        Name = "OpenSpecification3",
-                        Deleted = false
-                    }
+                    Deleted = false,
+                    Value = "Value1"
                 },
-                ClosedSpecifications = new List<ClosedSpecification>
+                new()
                 {
-                    new()
-                    {
-                        Name = "ClosedSpecification1",
-                        Deleted = false,
-                        ClosedSpecificationValues = new List<ClosedSpecificationValue>
-                        {
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value1"
-                            },
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value2"
-                            },
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value3"
-                            }
-                        },
-                        Filter = new Filter
-                        {
-                            Title = "Title"
-                        }
-                    },
-                     new()
-                     {
-                         Name = "ClosedSpecification2",
-                         Deleted = false,
-                         ClosedSpecificationValues = new List<ClosedSpecificationValue>()
-                     },
-                     new()
-                     {
-                         Name = "ClosedSpecification3",
-                         Deleted = false,
-                         ClosedSpecificationValues = new List<ClosedSpecificationValue>()
-                     },
-                     new()
-                     {
-                         Name = "ClosedSpecification4",
-                         Deleted = false,
-                         ClosedSpecificationValues = new List<ClosedSpecificationValue>()
-                     }
+                    Deleted = false,
+                    Value = "Value2"
+                },
+                new()
+                {
+                    Deleted = false,
+                    Value = "Value3"
                 }
-            });
+            }.ToArray(),
+            Filter = "Title"
+        };
+
+        public static readonly ClosedSpecification ClosedSpecification2 = new()
+        {
+            Name = "ClosedSpecification2",
+            Deleted = false,
+            Values = new ClosedSpecificationValue[] { }
+        };
 
         /// <summary>
-        /// A subcategory used by some tests when updating a subcategory.
-        /// </summary>
-        public static readonly WholeSubcategory SimpleSubcategory = new(new Subcategory
-            {
-                Name = "TestSubcategory",
-                Deleted = false,
-                OpenSpecifications = new List<OpenSpecification>
-                {
-                    new()
-                    {
-                        Name = "OpenSpecification1",
-                        Deleted = false
-                    }
-                },
-                ClosedSpecifications = new List<ClosedSpecification>
-                {
-                    new()
-                    {
-                        Name = "ClosedSpecification1",
-                        Deleted = false,
-                        ClosedSpecificationValues = new List<ClosedSpecificationValue>
-                        {
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value1"
-                            },
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value2"
-                            },
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value3"
-                            }
-                        },
-                        Filter = new Filter
-                        {
-                            Title = "Title"
-                        }
-                    },
-                    new()
-                    {
-                        Name = "ClosedSpecification2",
-                        Deleted = false,
-                        ClosedSpecificationValues = new List<ClosedSpecificationValue>
-                        {
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value4"
-                            },
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value5"
-                            },
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value6"
-                            }
-                        }
-                    }
-                }
-            });
-
-        /// <summary>
-        /// A subcategory used by some tests when updating a subcategory.
-        /// </summary>
-        public static readonly WholeSubcategory UpdatedSubcategory = new(new Subcategory
-            {
-                Name = "TestSubcategory",
-                Deleted = false,
-                OpenSpecifications = new List<OpenSpecification>
-                {
-                    new()
-                    {
-                        Name = "OpenSpecification1",
-                        Deleted = false
-                    },
-                    new()
-                    {
-                        Name = "OpenSpecification2",
-                        Deleted = true
-                    },
-                },
-                ClosedSpecifications = new List<ClosedSpecification>
-                {
-                    new()
-                    {
-                        Name = "ClosedSpecification1",
-                        Deleted = false,
-                        ClosedSpecificationValues = new List<ClosedSpecificationValue>
-                        {
-                            new()
-                            {
-                                Deleted = false,
-                                Value = "Value1"
-                            },
-                            new()
-                            {
-                                Deleted = true,
-                                Value = "Value2"
-                            }
-                        },
-                        Filter = null
-                    },
-                    new()
-                    {
-                        Name = "ClosedSpecification2",
-                        Deleted = true,
-                        ClosedSpecificationValues = new List<ClosedSpecificationValue>()
-                    },
-                    new()
-                    {
-                        Name = "ClosedSpecification4",
-                        Deleted = false,
-                        ClosedSpecificationValues = new List<ClosedSpecificationValue>(),
-                        Filter = new Filter
-                        {
-                            Title = "Filter"
-                        }
-                    }
-                }
-            });
-
-        /// <summary>
-        /// A product used by some tests when creating a product, assumes the specifications in <see cref="SimpleSubcategory"/> exists.
+        /// A product used by some tests when creating a product, assumes the specifications in
+        /// <see cref="ClosedSpecification1"/>, and <see cref="OpenSpecification1"/> exists.
         /// </summary>
         public static readonly NewProduct Product = new()
         {
@@ -247,11 +85,6 @@ namespace Order.Test
                 {
                     Specification = "ClosedSpecification1",
                     Value = "Value1"
-                },
-                new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
-                {
-                    Specification = "ClosedSpecification2",
-                    Value = "Value6"
                 }
             },
             OpenSpecificationValues = new []
@@ -266,7 +99,8 @@ namespace Order.Test
 
         /// <summary>
         /// A product used by some tests when creating a product with an extra closed specification,
-        /// assumes the specifications in <see cref="SimpleSubcategory"/> exists.
+        /// assumes the specifications in <see cref="ClosedSpecification1"/>, <see cref="ClosedSpecification2"/>,
+        /// and <see cref="OpenSpecification1"/> exists.
         /// </summary>
         public static readonly NewProduct ProductExtraClosed = new()
         {
@@ -280,11 +114,6 @@ namespace Order.Test
                 {
                     Specification = "ClosedSpecification1",
                     Value = "Value1"
-                },
-                new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
-                {
-                    Specification = "ClosedSpecification2",
-                    Value = "Value6"
                 },
                 new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
                 {
@@ -304,7 +133,8 @@ namespace Order.Test
 
         /// <summary>
         /// A product used by some tests when creating a product with an invalid closed specification value,
-        /// assumes the specifications in <see cref="SimpleSubcategory"/> exists.
+        /// assumes the specifications in <see cref="ClosedSpecification1"/>, <see cref="ClosedSpecification2"/>,
+        /// and <see cref="OpenSpecification1"/> exists.
         /// </summary>
         public static readonly NewProduct ProductInvalidClosed = new()
         {
@@ -317,12 +147,7 @@ namespace Order.Test
                 new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
                 {
                     Specification = "ClosedSpecification1",
-                    Value = "Value1"
-                },
-                new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
-                {
-                    Specification = "ClosedSpecification2",
-                    Value = "TEST"
+                    Value = "Test"
                 }
             },
             OpenSpecificationValues = new []
@@ -337,7 +162,8 @@ namespace Order.Test
 
         /// <summary>
         /// A product used by some tests when creating a product with an extra open specification value,
-        /// assumes the specifications in <see cref="SimpleSubcategory"/> exists.
+        /// assumes the specifications in <see cref="ClosedSpecification1"/>, <see cref="ClosedSpecification2"/>,
+        /// and <see cref="OpenSpecification1"/> exists.
         /// </summary>
         public static readonly NewProduct ProductExtraOpen = new()
         {
@@ -351,12 +177,7 @@ namespace Order.Test
                 {
                     Specification = "ClosedSpecification1",
                     Value = "Value1"
-                },
-                new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
-                {
-                    Specification = "ClosedSpecification2",
-                    Value = "Value6"
-                },
+                }
             },
             OpenSpecificationValues = new []
             {
@@ -374,7 +195,8 @@ namespace Order.Test
         };
 
         /// <summary>
-        /// A product used by some tests when updating a product, assumes the specifications in <see cref="SimpleSubcategory"/> exists.
+        /// A product used by some tests when updating a product, assumes the specifications in
+        /// <see cref="ClosedSpecification1"/>, and <see cref="OpenSpecification1"/> exists.
         /// </summary>
         public static readonly Product UpdateProduct = new()
         {
@@ -388,11 +210,6 @@ namespace Order.Test
                 {
                     Specification = "ClosedSpecification1",
                     Value = "Value1"
-                },
-                new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
-                {
-                    Specification = "ClosedSpecification2",
-                    Value = "Value6"
                 }
             },
             OpenSpecificationValues = new []
@@ -407,7 +224,8 @@ namespace Order.Test
 
         /// <summary>
         /// A product used by some tests when updating a product with an extra closed specification,
-        /// assumes the specifications in <see cref="SimpleSubcategory"/> exists.
+        /// assumes the specifications in <see cref="ClosedSpecification1"/>, <see cref="ClosedSpecification2"/>,
+        /// and <see cref="OpenSpecification1"/> exists.
         /// </summary>
         public static readonly Product UpdateProductExtraClosed = new()
         {
@@ -424,11 +242,6 @@ namespace Order.Test
                 },
                 new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
                 {
-                    Specification = "ClosedSpecification2",
-                    Value = "Value6"
-                },
-                new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
-                {
                     Specification = "TEST",
                     Value = "TEST"
                 }
@@ -444,7 +257,9 @@ namespace Order.Test
         };
 
         /// <summary>
-        /// A product used by some tests when updating a product with an invalid closed specification value, assumes the specifications in <see cref="SimpleSubcategory"/> exists.
+        /// A product used by some tests when updating a product with an invalid closed specification value,
+        /// assumes the specifications in <see cref="ClosedSpecification1"/>, <see cref="ClosedSpecification2"/>,
+        /// and <see cref="OpenSpecification1"/> exists.
         /// </summary>
         public static readonly Product UpdateProductInvalidClosed = new()
         {
@@ -457,12 +272,7 @@ namespace Order.Test
                 new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
                 {
                     Specification = "ClosedSpecification1",
-                    Value = "Value1"
-                },
-                new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
-                {
-                    Specification = "ClosedSpecification2",
-                    Value = "TEST"
+                    Value = "Test"
                 }
             },
             OpenSpecificationValues = new []
@@ -477,7 +287,8 @@ namespace Order.Test
 
         /// <summary>
         /// A product used by some tests when updating a product with an extra open specification,
-        /// assumes the specifications in <see cref="SimpleSubcategory"/> exists.
+        /// assumes the specifications in <see cref="ClosedSpecification1"/>, <see cref="ClosedSpecification2"/>,
+        /// and <see cref="OpenSpecification1"/> exists.
         /// </summary>
         public static readonly Product UpdateProductExtraOpen = new()
         {
@@ -491,11 +302,6 @@ namespace Order.Test
                 {
                     Specification = "ClosedSpecification1",
                     Value = "Value1"
-                },
-                new API.Controllers.ProductController.Models.Receive.ClosedSpecificationValue
-                {
-                    Specification = "ClosedSpecification2",
-                    Value = "Value6"
                 }
             },
             OpenSpecificationValues = new []

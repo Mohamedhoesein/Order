@@ -54,7 +54,7 @@ namespace Order.API.Context
         /// <summary>
         /// The name of the authorization policy for having the Controller.Manage permission.
         /// </summary>
-        public const string CategoryManageClaim = "Controller.Manage";
+        public const string CategoryManageClaim = "Category.Manage";
         /// <summary>
         /// The name of the authorization policy for not having the Controller.Manage permission.
         /// </summary>

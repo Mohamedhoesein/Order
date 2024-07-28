@@ -30,6 +30,9 @@ namespace Order.API.Controllers.ProductController
         /// <param name="path">
         /// The location for the images.
         /// </param>
+        /// <param name="env">
+        /// The environment variables.
+        /// </param>
         public ProductController(OrderContext orderContext, string path, IWebHostEnvironment env) : base(orderContext)
         {
             _path = Path.Combine(env.ContentRootPath, path.TrimStart('/'));
@@ -37,16 +40,10 @@ namespace Order.API.Controllers.ProductController
         }
 
         /// <summary>
-        /// Get the products of a subcategory for employees.
+        /// Get the products of a category for employees.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
+        /// The name of the category.
         /// </param>
         /// <returns>
         /// An <see cref="OkObjectResult"/> with the products.
@@ -54,58 +51,44 @@ namespace Order.API.Controllers.ProductController
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.ProductManageClaim)]
-        [HttpGet("employee/{mainCategory}/{category}/{subcategory}")]
-        public IActionResult GetProductsEmployee([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory)
+        [HttpGet("employee/{category}")]
+        public IActionResult GetProductsEmployee([FromRoute] string category)
         {
-            if (_orderContext.MainCategories.All(currentMainCategory =>
-                    currentMainCategory.Name != mainCategory ||
-                    currentMainCategory.Categories.All(currentCategory =>
-                        currentCategory.Name != category ||
-                        currentCategory.Subcategories.All(currentSubcategory =>
-                            currentSubcategory.Name != subcategory))))
+            var currentCategory =
+                _orderContext.Categories.FirstOrDefault(currentCategory => currentCategory.Name == category);
+            if (currentCategory == null)
                 return NotFound();
             var products = _orderContext.Products
                 .Include(product => product.ProductVersions)
                 .ThenInclude(productVersion => productVersion.ProductImages)
                 .Include(product => product.ProductVersions)
                 .ThenInclude(productVersion => productVersion.ClosedSpecificationValues)
+                .ThenInclude(closedSpecificationValue => closedSpecificationValue.ClosedSpecification)
                 .Include(product => product.ProductVersions)
                 .ThenInclude(productVersion => productVersion.OpenSpecificationValues)
+                .ThenInclude(openSpecificationValue => openSpecificationValue.OpenSpecification)
                 .AsSingleQuery()
-                .Where(product =>
-                    product.SubcategoryName == subcategory &&
-                    product.CategoryName == category &&
-                    product.MainCategoryName == mainCategory
-                ).ToList();
+                .Where(product => product.CategoryId == currentCategory.Id).ToList();
             return Ok(products.Select(product => new Models.Send.EmployeeProduct(product)).ToArray());
         }
 
         /// <summary>
-        /// Get the products of a subcategory for end users.
+        /// Get the products of a category for end users.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
+        /// The name of the category.
         /// </param>
         /// <returns>
         /// An <see cref="OkObjectResult"/> with the products.
         /// </returns>
         [EnableCors(Cors.AllowEndUser)]
         [AllowAnonymous]
-        [HttpGet("enduser/{mainCategory}/{category}/{subcategory}")]
-        public IActionResult GetProducts([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory)
+        [HttpGet("enduser/{category}")]
+        public IActionResult GetProducts([FromRoute] string category)
         {
-            if (_orderContext.MainCategories.All(currentMainCategory =>
-                    currentMainCategory.Name != mainCategory ||
-                    currentMainCategory.Categories.All(currentCategory =>
-                        currentCategory.Name != category ||
-                        currentCategory.Subcategories.All(currentSubcategory =>
-                            currentSubcategory.Name != subcategory))))
+            var currentCategory =
+                _orderContext.Categories.FirstOrDefault(currentCategory => currentCategory.Name == category);
+            if (currentCategory == null)
                 return NotFound();
             var products = _orderContext.Products
                 .Include(product => product.ProductVersions)
@@ -115,12 +98,7 @@ namespace Order.API.Controllers.ProductController
                 .Include(product => product.ProductVersions)
                 .ThenInclude(productVersion => productVersion.OpenSpecificationValues)
                 .AsSingleQuery()
-                .Where(product =>
-                    product.SubcategoryName == subcategory &&
-                    product.CategoryName == category &&
-                    product.MainCategoryName == mainCategory &&
-                    !product.Deleted
-                ).ToList();
+                .Where(product => product.CategoryId == currentCategory.Id && !product.Deleted).ToList();
             return Ok(products.Select(product => new Models.Send.EndUserProduct(product)).ToArray());
         }
 
@@ -155,26 +133,24 @@ namespace Order.API.Controllers.ProductController
             var openSpecificationValues =
                 product.OpenSpecificationValues ?? Array.Empty<OpenSpecificationValue>();
             var existingClosedSpecificationValues = _orderContext.ClosedSpecificationValues
+                .Include(closedSpecificationValue => closedSpecificationValue.ClosedSpecification)
                 .Where(existingClosedSpecificationValue =>
-                    existingClosedSpecificationValue.MainCategoryName == existingProduct.MainCategoryName &&
-                    existingClosedSpecificationValue.CategoryName == existingProduct.CategoryName &&
-                    existingClosedSpecificationValue.SubcategoryName == existingProduct.SubcategoryName
+                    existingClosedSpecificationValue.ClosedSpecification.CategoryId == existingProduct.CategoryId
                 ).ToList();
             var existingOpenSpecifications = _orderContext.OpenSpecifications
                 .Where(existingOpenSpecificationValue =>
-                    existingOpenSpecificationValue.MainCategoryName == existingProduct.MainCategoryName &&
-                    existingOpenSpecificationValue.CategoryName == existingProduct.CategoryName &&
-                    existingOpenSpecificationValue.SubcategoryName == existingProduct.SubcategoryName
+                    existingOpenSpecificationValue.CategoryId == existingProduct.CategoryId
                 ).ToList();
             if (closedSpecificationValues.Any(closedSpecificationValue =>
+                    existingClosedSpecificationValues.Count > 0 &&
                     existingClosedSpecificationValues.All(existingClosedSpecificationValue =>
-                        existingClosedSpecificationValue.SpecificationName != closedSpecificationValue.Specification ||
+                        existingClosedSpecificationValue.ClosedSpecification.Name != closedSpecificationValue.Specification ||
                         existingClosedSpecificationValue.Value != closedSpecificationValue.Value)) ||
                 openSpecificationValues.Any(openSpecificationValue =>
                     existingOpenSpecifications.All(existingOpenSpecification =>
                         existingOpenSpecification.Name != openSpecificationValue.Specification)) ||
                 postedImages.Any(image => !ValidImage(image.File)))
-                return NewStatusCode(400);
+                return StatusCode(400);
 
             var existingImages = existingProduct.ProductVersions.MaxBy(version => version.VersionNumber)
                 ?.ProductImages.Where(productImage =>
@@ -232,20 +208,15 @@ namespace Order.API.Controllers.ProductController
                 Price = product.Price,
                 ProductImages = images,
                 ClosedSpecificationValues = existingClosedSpecificationValues.Where(existingClosedSpecificationValue =>
-                    existingClosedSpecificationValue.MainCategoryName == existingProduct.MainCategoryName &&
-                    existingClosedSpecificationValue.CategoryName == existingProduct.CategoryName &&
-                    existingClosedSpecificationValue.SubcategoryName == existingProduct.SubcategoryName &&
+                    existingClosedSpecificationValue.ClosedSpecification.CategoryId == existingProduct.CategoryId &&
                     closedSpecificationValues.Any(closedSpecification =>
-                        existingClosedSpecificationValue.SpecificationName == closedSpecification.Specification &&
+                        existingClosedSpecificationValue.ClosedSpecification.Name == closedSpecification.Specification &&
                         existingClosedSpecificationValue.Value == closedSpecification.Value)).ToList(),
                 OpenSpecificationValues = openSpecificationValues.Select(openSpecificationValue =>
                     new Order.API.Context.OpenSpecificationValue
                     {
-                        MainCategoryName = existingProduct.MainCategoryName,
-                        CategoryName = existingProduct.CategoryName,
-                        SubcategoryName = existingProduct.SubcategoryName,
+                        SpecificationId = _orderContext.OpenSpecifications.First(specification => specification.Name == openSpecificationValue.Specification).Id,
                         Value = openSpecificationValue.Value,
-                        SpecificationName = openSpecificationValue.Specification
                     }).ToList()
             });
             return Save();
@@ -254,14 +225,8 @@ namespace Order.API.Controllers.ProductController
         /// <summary>
         /// Update a product.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
+        /// The name of the category.
         /// </param>
         /// <param name="product">
         /// The product information.
@@ -274,15 +239,12 @@ namespace Order.API.Controllers.ProductController
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.ProductManageClaim)]
-        [HttpPost("employee/{mainCategory}/{category}/{subcategory}")]
-        public IActionResult CreateProduct([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory, [FromForm] NewProduct product)
+        [HttpPost("employee/{category}")]
+        public IActionResult CreateProduct([FromRoute] string category, [FromForm] NewProduct product)
         {
-            if (_orderContext.MainCategories.All(currentMainCategory =>
-                    currentMainCategory.Name != mainCategory ||
-                    currentMainCategory.Categories.All(currentCategory =>
-                        currentCategory.Name != category ||
-                        currentCategory.Subcategories.All(currentSubcategory =>
-                            currentSubcategory.Name != subcategory))))
+            var currentCategory =
+                _orderContext.Categories.FirstOrDefault(currentCategory => currentCategory.Name == category);
+            if (currentCategory == null)
                 return NotFound();
 
             var postedImages = product.Images ?? Array.Empty<NewImage>();
@@ -291,20 +253,18 @@ namespace Order.API.Controllers.ProductController
             var openSpecificationValues =
                 product.OpenSpecificationValues ?? Array.Empty<OpenSpecificationValue>();
             var existingClosedSpecificationValues = _orderContext.ClosedSpecificationValues
+                .Include(closedSpecificationValue => closedSpecificationValue.ClosedSpecification)
                 .Where(existingClosedSpecificationValue =>
-                    existingClosedSpecificationValue.MainCategoryName == mainCategory &&
-                    existingClosedSpecificationValue.CategoryName == category &&
-                    existingClosedSpecificationValue.SubcategoryName == subcategory
+                    existingClosedSpecificationValue.ClosedSpecification.CategoryId == currentCategory.Id
                 ).ToList();
             var existingOpenSpecifications = _orderContext.OpenSpecifications
                 .Where(existingOpenSpecificationValue =>
-                    existingOpenSpecificationValue.MainCategoryName == mainCategory &&
-                    existingOpenSpecificationValue.CategoryName == category &&
-                    existingOpenSpecificationValue.SubcategoryName == subcategory
+                    existingOpenSpecificationValue.CategoryId == currentCategory.Id
                 ).ToList();
             if (closedSpecificationValues.Any(closedSpecificationValue =>
+                    existingClosedSpecificationValues.Count > 0 &&
                     existingClosedSpecificationValues.All(existingClosedSpecificationValue =>
-                        existingClosedSpecificationValue.SpecificationName != closedSpecificationValue.Specification ||
+                        existingClosedSpecificationValue.ClosedSpecification.Name != closedSpecificationValue.Specification ||
                         existingClosedSpecificationValue.Value != closedSpecificationValue.Value)) ||
                 openSpecificationValues.Any(openSpecificationValue =>
                     existingOpenSpecifications.All(existingOpenSpecification =>
@@ -314,9 +274,7 @@ namespace Order.API.Controllers.ProductController
 
             var newProduct = new Product
             {
-                MainCategoryName = mainCategory,
-                CategoryName = category,
-                SubcategoryName = subcategory,
+                CategoryId = currentCategory.Id,
                 ProductVersions = new List<ProductVersion>
                 {
                     new()
@@ -340,25 +298,37 @@ namespace Order.API.Controllers.ProductController
                             };
                         }).ToList(),
                         ClosedSpecificationValues = existingClosedSpecificationValues.Where(existingClosedSpecificationValue =>
-                            existingClosedSpecificationValue.MainCategoryName == mainCategory &&
-                            existingClosedSpecificationValue.CategoryName == category &&
-                            existingClosedSpecificationValue.SubcategoryName == subcategory &&
+                            existingClosedSpecificationValue.ClosedSpecification.CategoryId == currentCategory.Id &&
                             closedSpecificationValues.Any(closedSpecification =>
-                                existingClosedSpecificationValue.SpecificationName == closedSpecification.Specification &&
+                                existingClosedSpecificationValue.ClosedSpecification.Name == closedSpecification.Specification &&
                                 existingClosedSpecificationValue.Value == closedSpecification.Value)).ToList(),
                         OpenSpecificationValues = openSpecificationValues.Select(openSpecificationValue =>
                             new Order.API.Context.OpenSpecificationValue
                             {
-                                MainCategoryName = mainCategory,
-                                CategoryName = category,
-                                SubcategoryName = subcategory,
-                                Value = openSpecificationValue.Value,
-                                SpecificationName = openSpecificationValue.Specification
+                                SpecificationId = _orderContext.OpenSpecifications.First(specification => specification.Name == openSpecificationValue.Specification).Id,
+                                Value = openSpecificationValue.Value
                             }).ToList()
                     }
                 }
             };
             _orderContext.Products.Add(newProduct);
+            return Save();
+        }
+
+        [EnableCors(Cors.AllowAdmin)]
+        [Authorize(Policy = Claims.EmployeeClaim)]
+        [Authorize(Policy = Claims.ProductManageClaim)]
+        [HttpDelete("employee/{id:long}/{newCategory}")]
+        public IActionResult ChangeProductCategory([FromRoute] long id, [FromRoute] string newCategory)
+        {
+            var product = _orderContext.Products.FirstOrDefault(product => product.Id == id);
+            if (product == null)
+                return NotFound();
+            var storedNewCategory = _orderContext.Categories.FirstOrDefault(category => category.Name == newCategory);
+            if (storedNewCategory == null)
+                return NotFound();
+
+            product.CategoryId = storedNewCategory.Id;
             return Save();
         }
 

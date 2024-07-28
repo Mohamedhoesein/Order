@@ -8,6 +8,10 @@ namespace Order.API.Context
     public class ClosedSpecification
     {
         /// <summary>
+        /// The id of the specification.
+        /// </summary>
+        public int Id { get; set; }
+        /// <summary>
         /// The name of the specification.
         /// </summary>
         [Required]
@@ -19,21 +23,13 @@ namespace Order.API.Context
         public bool Deleted { get; set; }
 
         /// <summary>
-        /// The name of the subcategory this specification is associated with.
+        /// The id of the category this specification is associated with.
         /// </summary>
-        public string SubcategoryName { get; set; }
+        public int CategoryId { get; set; }
         /// <summary>
-        /// The name of the category the subcategory is associated with.
+        /// The category this specification is associated with.
         /// </summary>
-        public string CategoryName { get; set; }
-        /// <summary>
-        /// The name of the main category the category is associated with.
-        /// </summary>
-        public string MainCategoryName { get; set; }
-        /// <summary>
-        /// The subcategory this specification is associated with.
-        /// </summary>
-        public Subcategory Subcategory { get; set; }
+        public Category Category { get; set; }
         /// <summary>
         /// The values for products associated with this specification.
         /// </summary>

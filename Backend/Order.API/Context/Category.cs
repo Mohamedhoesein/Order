@@ -8,6 +8,10 @@ namespace Order.API.Context
     public class Category
     {
         /// <summary>
+        /// The id of the category.
+        /// </summary>
+        public int Id { get; set; }
+        /// <summary>
         /// The name of the category.
         /// </summary>
         [Required]
@@ -19,16 +23,20 @@ namespace Order.API.Context
         public bool Deleted { get; set; }
 
         /// <summary>
-        /// The name of the main category that this category falls under.
+        /// The open specifications associated with this category.
         /// </summary>
-        public string MainCategoryName { get; set; }
+        public ICollection<OpenSpecification> OpenSpecifications { get; set; }
         /// <summary>
-        /// The main category that this category falls under.
+        /// The open specifications associated with this category.
         /// </summary>
-        public MainCategory MainCategory { get; set; }
+        public ICollection<ClosedSpecification> ClosedSpecifications { get; set; }
         /// <summary>
-        /// The sub categories that fall under this category.
+        /// The filters associated with this category.
         /// </summary>
-        public ICollection<Subcategory> Subcategories { get; set; }
+        public ICollection<Filter> Filters { get; set; }
+        /// <summary>
+        /// The products associated with this category.
+        /// </summary>
+        public ICollection<Product> Products { get; set; }
     }
 }

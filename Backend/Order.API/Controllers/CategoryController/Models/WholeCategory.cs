@@ -1,16 +1,18 @@
+using Order.API.Context;
+
 namespace Order.API.Controllers.CategoryController.Models
 {
     /// <summary>
-    /// All the information for a subcategory.
+    /// All the information for a category.
     /// </summary>
-    public class WholeSubcategory
+    public class WholeCategory
     {
         /// <summary>
-        /// If the subcategory is deleted.
+        /// If the category is deleted.
         /// </summary>
         public bool Deleted { get; set; }
         /// <summary>
-        /// The name of the subcategory.
+        /// The name of the category.
         /// </summary>
         public string Name { get; set; }
         /// <summary>
@@ -23,24 +25,24 @@ namespace Order.API.Controllers.CategoryController.Models
         public OpenSpecification[] OpenSpecifications { get; set; }
 
         /// <summary>
-        /// Initialize a new <see cref="WholeSubcategory"/>.
+        /// Initialize a new <see cref="WholeCategory"/>.
         /// </summary>
-        public WholeSubcategory() {}
+        public WholeCategory() {}
 
         /// <summary>
-        /// Initialize a new <see cref="WholeSubcategory"/> based on a <see cref="Context.Subcategory"/>.
+        /// Initialize a new <see cref="WholeCategory"/> based on a <see cref="Category"/>.
         /// </summary>
-        /// <param name="subcategory">
-        /// The <see cref="Context.Subcategory"/> to use.
+        /// <param name="category">
+        /// The <see cref="Category"/> to use.
         /// </param>
-        public WholeSubcategory(Context.Subcategory subcategory)
+        public WholeCategory(Context.Category category)
         {
-            Deleted = subcategory.Deleted;
-            Name = subcategory.Name;
-            ClosedSpecifications = subcategory.ClosedSpecifications
+            Deleted = category.Deleted;
+            Name = category.Name;
+            ClosedSpecifications = category.ClosedSpecifications
                 .Select(closedSpecification => new ClosedSpecification(closedSpecification))
                 .OrderBy(closedSpecification => closedSpecification.Name).ToArray();
-            OpenSpecifications = subcategory.OpenSpecifications
+            OpenSpecifications = category.OpenSpecifications
                 .Select(openSpecification => new OpenSpecification(openSpecification))
                 .OrderBy(openSpecification => openSpecification.Name)
                 .ToArray();

@@ -27,7 +27,7 @@ namespace Order.API.Controllers.ProductController.Models.Send
         /// </param>
         public ClosedSpecificationValue(Context.ClosedSpecificationValue value)
         {
-            Specification = value.SpecificationName;
+            Specification = value.ClosedSpecification.Name;
             Value = value.Value;
         }
     }

@@ -8,6 +8,10 @@ namespace Order.API.Context
     public class ClosedSpecificationValue
     {
         /// <summary>
+        /// The id of the specification value.
+        /// </summary>
+        public int Id { get; set; }
+        /// <summary>
         /// The value of the specification.
         /// </summary>
         [Required]
@@ -19,21 +23,9 @@ namespace Order.API.Context
         public bool Deleted { get; set; }
 
         /// <summary>
-        /// The name of the specification this value is associated with.
+        /// The id of the specification this value is associated with.
         /// </summary>
-        public string SpecificationName { get; set; }
-        /// <summary>
-        /// The name of the subcategory the specification is associated with,
-        /// </summary>
-        public string SubcategoryName { get; set; }
-        /// <summary>
-        /// The name of the category the subcategory is associated with.
-        /// </summary>
-        public string CategoryName { get; set; }
-        /// <summary>
-        /// The name of the main category the category is associated with.
-        /// </summary>
-        public string MainCategoryName { get; set; }
+        public int SpecificationId { get; set; }
         /// <summary>
         /// The specification this value is associated with.
         /// </summary>

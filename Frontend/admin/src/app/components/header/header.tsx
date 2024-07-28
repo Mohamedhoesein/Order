@@ -22,6 +22,11 @@ export const Header = () => {
                                 Register
                             </MDBNavbarLink>
                         </MDBNavbarItem>
+                        <MDBNavbarItem>
+                            <MDBNavbarLink id="categories-link" href="categories">
+                                Categories
+                            </MDBNavbarLink>
+                        </MDBNavbarItem>
                     </MDBNavbarNav>
                     <MDBNavbarNav className='w-auto mb-2 mb-lg-0'>
                         <MDBNavbarItem>

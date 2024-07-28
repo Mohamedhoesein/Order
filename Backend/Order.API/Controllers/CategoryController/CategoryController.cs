@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging;
 using Order.API.Context;
 using Order.API.Util;
 
@@ -23,218 +24,89 @@ namespace Order.API.Controllers.CategoryController
         public CategoryController(OrderContext orderContext) : base(orderContext){}
 
         /// <summary>
-        /// Get the categories stored in the database.
+        /// Get the information of all categories.
         /// </summary>
         /// <returns>
-        /// An <see cref="OkObjectResult"/> with the stored categories.
+        /// An <see cref="OkObjectResult"/> with the associated information,
+        /// or an <see cref="NotFoundResult"/> if the category does not exist.
         /// </returns>
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
         [HttpGet("employee")]
-        public IActionResult GetSubCategoryEmployee()
+        public IActionResult GetCategoriesEmployee()
         {
-            var data = _orderContext.MainCategories
-                .Include(mainCategory => mainCategory.Categories)
-                .ThenInclude(category => category.Subcategories)
-                .AsSplitQuery()
-                .ToList()
-                .Select(mainCategory => new Models.Send.MainCategory(mainCategory))
-                .OrderBy(mainCategory => mainCategory.Name)
-                .ToArray();
-            return Ok(data);
+            var data = _orderContext.Categories
+                .Include(category => category.OpenSpecifications)
+                .Include(category => category.ClosedSpecifications)
+                .ThenInclude(closedSpecifications => closedSpecifications.ClosedSpecificationValues)
+                .Include(category => category.ClosedSpecifications)
+                .ThenInclude(closedSpecifications => closedSpecifications.Filter)
+                .ToList();
+            return Ok(data.Select(category => new Models.WholeCategory(category)).ToArray());
         }
 
         /// <summary>
-        /// Get the information of a single subcategory.
+        /// Get the information of all categories.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
-        /// </param>
         /// <returns>
         /// An <see cref="OkObjectResult"/> with the associated information,
-        /// or an <see cref="NotFoundResult"/> if the subcategory does not exist.
-        /// </returns>
-        [EnableCors(Cors.AllowAdmin)]
-        [Authorize(Policy = Claims.EmployeeClaim)]
-        [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpGet("employee/{mainCategory}/{category}/{subcategory}")]
-        public IActionResult GetSubcategoryEmployee([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory)
-        {
-            var data = _orderContext.Subcategories
-                .Include(subcategory => subcategory.ClosedSpecifications)
-                .ThenInclude(closedSpecification => closedSpecification.Filter)
-                .Include(subcategory => subcategory.ClosedSpecifications)
-                .ThenInclude(closedSpecification => closedSpecification.ClosedSpecificationValues)
-                .Include(subcategory => subcategory.OpenSpecifications)
-                .AsSplitQuery()
-                .FirstOrDefault(currentSubcategory => currentSubcategory.Name == subcategory &&
-                                                      currentSubcategory.CategoryName == category &&
-                                                      currentSubcategory.MainCategoryName == mainCategory);
-
-            if (data == null)
-                return NotFound();
-
-            return Ok(new Models.WholeSubcategory(data));
-        }
-
-        /// <summary>
-        /// Get the categories stored in the database.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="OkObjectResult"/> with the stored categories.
+        /// or an <see cref="NotFoundResult"/> if the category does not exist.
         /// </returns>
         [EnableCors(Cors.AllowFrontend)]
         [AllowAnonymous]
         [HttpGet("enduser")]
         public IActionResult GetCategories()
         {
-            var data = _orderContext.MainCategories
-                .Include(mainCategory => mainCategory.Categories)
-                .ThenInclude(category => category.Subcategories)
-                .AsSplitQuery()
-                .Where(mainCategory => !mainCategory.Deleted)
-                .ToList()
-                .Select(mainCategory => new Models.Send.MainCategory(mainCategory))
-                .OrderBy(mainCategory => mainCategory.Name)
-                .Select(mainCategory =>
-                {
-                    mainCategory.Categories = mainCategory.Categories
-                        .Where(category => !category.Deleted)
-                        .Select(category =>
-                        {
-                            category.Subcategories = category.Subcategories
-                                .Where(subcategory => !subcategory.Deleted)
-                                .ToArray();
-                            return category;
-                        }).ToArray();
-                    return mainCategory;
-                })
-                .ToArray();
-            return Ok(data);
-        }
+            var data = _orderContext.Categories
+                .Include(category => category.OpenSpecifications)
+                .Include(category => category.ClosedSpecifications)
+                .ThenInclude(closedSpecifications => closedSpecifications.ClosedSpecificationValues)
+                .Include(category => category.ClosedSpecifications)
+                .ThenInclude(closedSpecifications => closedSpecifications.Filter)
+                .Where(currentCategory => !currentCategory.Deleted)
+                .ToList();
 
-        /// <summary>
-        /// Get the information of a single subcategory.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory.
-        /// </param>
-        /// <returns>
-        /// An <see cref="OkObjectResult"/> with the associated information,
-        /// or an <see cref="NotFoundResult"/> if the subcategory does not exist.
-        /// </returns>
-        [EnableCors(Cors.AllowFrontend)]
-        [AllowAnonymous]
-        [HttpGet("enduser/{mainCategory}/{category}/{subcategory}")]
-        public IActionResult GetSubCategory([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory)
-        {
-            var data = _orderContext.Subcategories
-                .Include(subcategory => subcategory.ClosedSpecifications)
-                .ThenInclude(closedSpecification => closedSpecification.Filter)
-                .Include(subcategory => subcategory.ClosedSpecifications)
-                .ThenInclude(closedSpecification => closedSpecification.ClosedSpecificationValues)
-                .Include(subcategory => subcategory.OpenSpecifications)
-                .AsSplitQuery()
-                .FirstOrDefault(currentSubcategory => currentSubcategory.Name == subcategory &&
-                                                      currentSubcategory.CategoryName == category &&
-                                                      currentSubcategory.MainCategoryName == mainCategory &&
-                                                      !currentSubcategory.Deleted);
-
-            if (data == null)
-                return NotFound();
-
-            var wholeSubcategory = new Models.WholeSubcategory(data);
-            wholeSubcategory.ClosedSpecifications = wholeSubcategory.ClosedSpecifications
-                .Where(specification => !specification.Deleted)
-                .Select(specification =>
-                {
-                    specification.Values = specification.Values.Where(value => !value.Deleted).ToArray();
-                    return specification;
-                }).ToArray();
-            wholeSubcategory.OpenSpecifications = wholeSubcategory.OpenSpecifications
-                .Where(specification => !specification.Deleted).ToArray();
-            return Ok(wholeSubcategory);
-        }
-
-        /// <summary>
-        /// Create a main category, if a main category with the same name was previously deleted mark it as not deleted.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the main category to create.
-        /// </param>
-        /// <returns>
-        /// An <see cref="OkResult"/> if the main category is saved,
-        /// or an <see cref="ObjectResult"/> with a 500 status code if the saving fails.
-        /// </returns>
-        [EnableCors(Cors.AllowAdmin)]
-        [Authorize(Policy = Claims.EmployeeClaim)]
-        [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpPost("{mainCategory}")]
-        public IActionResult AddMainCategory([FromRoute] string mainCategory)
-        {
-            var currentMainCategory = _orderContext.MainCategories
-                .Include(mainCategory => mainCategory.Categories)
-                .ThenInclude(subcategory => subcategory.Subcategories)
-                .FirstOrDefault(currentMainCategory => currentMainCategory.Name == mainCategory);
-            if (currentMainCategory == null)
+            var categories = data.Select(category =>
             {
-                _orderContext.MainCategories.Add(new MainCategory
-                {
-                    Name = mainCategory
-                });
-                return Save();
-            }
-
-            if (!currentMainCategory.Deleted)
-                return BadRequest();
-            currentMainCategory.Deleted = false;
-            return Save();
+                var wholeCategory = new Models.WholeCategory(category);
+                wholeCategory.ClosedSpecifications = wholeCategory.ClosedSpecifications
+                    .Where(specification => !specification.Deleted)
+                    .Select(specification =>
+                    {
+                        specification.Values = specification.Values.Where(value => !value.Deleted).ToArray();
+                        return specification;
+                    }).ToArray();
+                wholeCategory.OpenSpecifications = wholeCategory.OpenSpecifications
+                    .Where(specification => !specification.Deleted).ToArray();
+                return wholeCategory;
+            }).ToArray();
+            return Ok(categories);
         }
 
         /// <summary>
         /// Create a category, if a category with the same name was previously deleted mark it as not deleted.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
         /// The name of the category to create.
         /// </param>
         /// <returns>
         /// An <see cref="OkResult"/> if the category is saved,
-        /// an <see cref="NotFoundResult"/> if the main category does not exist,
+        /// an <see cref="NotFoundResult"/> if the category does not exist,
         /// or an <see cref="ObjectResult"/> with a 500 status code if the saving fails.
         /// </returns>
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpPost("{mainCategory}/{category}")]
-        public IActionResult AddCategory([FromRoute] string mainCategory, [FromRoute] string category)
+        [HttpPost("employee/{category}")]
+        public IActionResult AddCategory([FromRoute] string category)
         {
-            if (!_orderContext.MainCategories.Any(category => category.Name == mainCategory))
-                return NotFound();
-
             var currentCategory = _orderContext.Categories
-                .Include(category => category.Subcategories)
-                .FirstOrDefault(currentCategory => currentCategory.MainCategoryName == mainCategory && currentCategory.Name == category);
+                .FirstOrDefault(currentCategory => currentCategory.Name == category);
             if (currentCategory == null)
             {
                 _orderContext.Categories.Add(new Category
                 {
-                    MainCategoryName = mainCategory,
                     Name = category
                 });
                 return Save();
@@ -247,240 +119,271 @@ namespace Order.API.Controllers.CategoryController
         }
 
         /// <summary>
-        /// Create a sub category, if a sub category with the same name was previously deleted mark it as not deleted.
+        /// Update the name of a category.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
+        /// <param name="oldName">
+        /// The old name of the category.
         /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory to create.
+        /// <param name="newName">
+        /// The new name of the category.
         /// </param>
         /// <returns>
-        /// An <see cref="OkResult"/> if the subcategory is saved,
-        /// an <see cref="NotFoundResult"/> if the main category or category does not exist,
+        /// An <see cref="OkResult"/> if the category is saved,
+        /// an <see cref="NotFoundResult"/> if the category does not exist,
         /// or an <see cref="ObjectResult"/> with a 500 status code if the saving fails.
         /// </returns>
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpPost("{mainCategory}/{category}/{subcategory}")]
-        public IActionResult AddSubcategory([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory)
+        [HttpPost("employee/{oldName}/update/{newName}")]
+        public IActionResult UpdateCategory([FromRoute] string oldName, [FromRoute] string newName)
         {
-            if (!_orderContext.MainCategories.Any(category => category.Name == mainCategory))
+            
+            var currentCategory = _orderContext.Categories
+                .FirstOrDefault(currentCategory => currentCategory.Name == oldName);
+            if (currentCategory == null)
                 return NotFound();
-            if (!_orderContext.Categories.Any(tempCategory => tempCategory.Name == category))
+
+            currentCategory.Name = newName;
+            return Save();
+        }
+
+
+        /// <summary>
+        /// Add or overwrite an closed specification. If it exists, it will be either deleted if the deleted flag is set,
+        /// or it will no longer be marked as deleted. In the former case any updates to the values will be ignore, and
+        /// in the latter case only those values will be be used that are present in the given data. If the specification
+        /// does not exist, it will be created.
+        /// </summary>
+        /// <param name="category">
+        /// The name of the category to update.
+        /// </param>
+        /// <param name="specification">
+        /// The specification data to use.
+        /// </param>
+        /// <returns>
+        /// An <see cref="OkResult"/> if the category is saved,
+        /// an <see cref="NotFoundResult"/> if the category does not exist,
+        /// or an <see cref="ObjectResult"/> with a 500 status code if the saving fails.
+        /// </returns>
+        [EnableCors(Cors.AllowAdmin)]
+        [Authorize(Policy = Claims.EmployeeClaim)]
+        [Authorize(Policy = Claims.CategoryManageClaim)]
+        [HttpPost("employee/{category}/closed")]
+        public IActionResult AddOverwriteClosedSpecification([FromRoute] string category, [FromBody] Models.ClosedSpecification specification)
+        {
+            var currentCategory = _orderContext.Categories
+                .Include(category => category.ClosedSpecifications)
+                .ThenInclude(closedSpecification => closedSpecification.ClosedSpecificationValues)
+                .FirstOrDefault(currentCategory => currentCategory.Name == category);
+            if (currentCategory == null)
                 return NotFound();
-            var currentSubcategory = _orderContext.Subcategories
-                .FirstOrDefault(currentSubcategory => currentSubcategory.Name == subcategory &&
-                                                      currentSubcategory.CategoryName == category &&
-                                                      currentSubcategory.MainCategoryName == mainCategory);
-            if (currentSubcategory == null)
+
+            var currentSpecification = currentCategory.ClosedSpecifications
+                .FirstOrDefault(currentSpecification => currentSpecification.Name == specification.Name);
+            if (currentSpecification != null)
             {
-                _orderContext.Subcategories.Add(new Subcategory
+                if (specification.Deleted)
                 {
-                    MainCategoryName = mainCategory,
-                    CategoryName = category,
-                    Name = subcategory
-                });
+                    currentSpecification.Deleted = true;
+                    currentSpecification.ClosedSpecificationValues = currentSpecification.ClosedSpecificationValues
+                        .Select(value =>
+                        {
+                            value.Deleted = true;
+                            return value;
+                        }).ToList();
+                    return Save();
+                }
+                currentSpecification.Deleted = false;
+                currentSpecification.ClosedSpecificationValues = currentSpecification.ClosedSpecificationValues
+                    .Select(value =>
+                    {
+                        var newSpecification = specification.Values
+                            .FirstOrDefault(newSpecification => newSpecification.Value == value.Value);
+                        value.Deleted = newSpecification == null || newSpecification.Deleted;
+                        return value;
+                    }).ToList();
+                currentSpecification.ClosedSpecificationValues.AddRange(
+                    specification.Values.Where(newValue =>
+                        !currentSpecification.ClosedSpecificationValues.Select(oldValue => oldValue.Value).Contains(newValue.Value)
+                    ).Select(value => new ClosedSpecificationValue
+                    {
+                        Value = value.Value,
+                        Deleted = false
+                    })
+                );
                 return Save();
             }
 
-            if (!currentSubcategory.Deleted)
-                return BadRequest();
-
+            currentCategory.ClosedSpecifications.Add(new ClosedSpecification
+            {
+                Name = specification.Name,
+                Filter = specification.Filter != null ? new Filter{Title = specification.Filter} : null,
+                Deleted = false,
+                ClosedSpecificationValues = specification.Values
+                    .Where(value => !value.Deleted)
+                    .Select(value => new ClosedSpecificationValue
+                    {
+                        Value = value.Value,
+                        Deleted = false
+                    }).ToList()
+            });
             return Save();
         }
 
         /// <summary>
-        /// Update a sub category.
+        /// Update the name of an closed specification.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
         /// The name of the associated category.
         /// </param>
-        /// <param name="subcategory">
-        /// The name of the associated subcategory.
+        /// <param name="oldName">
+        /// The old name of the closed specification.
         /// </param>
-        /// <param name="wholeSubcategory">
-        /// The new information of the subcategory.
+        /// <param name="newName">
+        /// The new name of the closed specification.
         /// </param>
         /// <returns>
-        /// An <see cref="OkResult"/> if the subcategory was updated,
-        /// an <see cref="BadRequestResult"/> if the name in <see cref="wholeSubcategory"/> and <see cref="subcategory"/> are different,
+        /// An <see cref="OkResult"/> if the closed specification is renamed,
+        /// an <see cref="NotFoundResult"/> if the category does not exist,
         /// or an <see cref="ObjectResult"/> with a 500 status code if the saving fails.
         /// </returns>
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpPost("{mainCategory}/{category}/{subcategory}/update")]
-        public IActionResult UpdateSubcategory([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory, [FromBody] Models.WholeSubcategory wholeSubcategory)
+        [HttpPost("employee/{category}/closed/update/{oldName}/{newName}")]
+        public IActionResult UpdateClosedSpecificationName([FromRoute] string category, [FromRoute] string oldName, [FromRoute] string newName)
         {
-            if (subcategory != wholeSubcategory.Name)
-                return BadRequest();
-            var currentSubcategory = _orderContext.Subcategories
-                .Include(subcategory => subcategory.OpenSpecifications)
-                .Include(subcategory => subcategory.ClosedSpecifications)
-                .ThenInclude(closedSpecification => closedSpecification.ClosedSpecificationValues)
-                .Include(subcategory => subcategory.ClosedSpecifications)
-                .ThenInclude(closedSpecification => closedSpecification.Filter)
-                .FirstOrDefault(currentSubcategory => currentSubcategory.Name == subcategory &&
-                                                      currentSubcategory.CategoryName == category &&
-                                                      currentSubcategory.MainCategoryName == mainCategory);
-            if (currentSubcategory == null)
+            var closedSpecification = _orderContext.ClosedSpecifications
+                .FirstOrDefault(specification => specification.Category.Name == category && specification.Name == oldName);
+            if (closedSpecification == null)
                 return NotFound();
 
-            var openSpecifications = currentSubcategory.OpenSpecifications.Select(specification => specification.Name).ToList();
-            currentSubcategory.OpenSpecifications = currentSubcategory.OpenSpecifications.Select(specification =>
-            {
-                var currentSpecification = wholeSubcategory.OpenSpecifications.FirstOrDefault(updatedSpecification =>
-                    updatedSpecification.Name == specification.Name);
-                specification.Deleted = currentSpecification == null || currentSpecification.Deleted;
-                return specification;
-            }).Concat(
-                wholeSubcategory.OpenSpecifications.Where(updatedSpecification =>
-                    !openSpecifications.Contains(updatedSpecification.Name) && !updatedSpecification.Deleted
-                ).Select(updatedSpecification => new OpenSpecification
-                {
-                    Name = updatedSpecification.Name,
-                    CategoryName = category,
-                    SubcategoryName = subcategory,
-                    MainCategoryName = mainCategory
-                })
-            ).ToList();
-            var closedSpecifications = currentSubcategory.ClosedSpecifications.Select(specification => specification.Name).ToList();
-            currentSubcategory.ClosedSpecifications = currentSubcategory.ClosedSpecifications.Select(specification =>
-            {
-                var currentSpecification = wholeSubcategory.ClosedSpecifications.FirstOrDefault(currentSpecification =>
-                    currentSpecification.Name == specification.Name && !currentSpecification.Deleted);
-                if (currentSpecification == null)
-                {
-                    specification.Deleted = true;
-                    return specification;
-                }
-                specification.Deleted = currentSpecification.Deleted;
-                var values = specification.ClosedSpecificationValues.Select(specificationValue => specificationValue.Value).ToList();
-                specification.ClosedSpecificationValues = specification.ClosedSpecificationValues.Select(
-                    specificationValue =>
-                    {
-                        var currentValue = currentSpecification.Values.FirstOrDefault(currentSpecificationValue =>
-                            currentSpecificationValue.Value == specificationValue.Value);
-                        specificationValue.Deleted = currentValue == null || currentValue.Deleted;
-                        return specificationValue;
-                    }).Concat(
-                        currentSpecification.Values
-                            .Where(currentSpecificationValue => !values.Contains(currentSpecificationValue.Value) &&
-                                                                !currentSpecificationValue.Deleted)
-                            .Select(currentSpecificationValue => new ClosedSpecificationValue
-                            {
-                                Value = currentSpecificationValue.Value,
-                                SpecificationName = specification.Name,
-                                CategoryName = specification.CategoryName,
-                                SubcategoryName = specification.SubcategoryName,
-                                MainCategoryName = mainCategory
-                            }).ToList()
-                    ).ToList();
-                if (currentSpecification.Filter == null && specification.Filter != null)
-                {
-                    _orderContext.Remove(specification.Filter);
-                }
-                else if (currentSpecification.Filter != null)
-                {
-                    if (specification.Filter == null)
-                    {
-                        _orderContext.Filters.Add(new Filter
-                        {
-                            Title = currentSpecification.Filter,
-                            ClosedSpecificationName = specification.Name,
-                            CategoryName = category,
-                            SubcategoryName = subcategory,
-                            MainCategoryName = mainCategory
-                        });
-                    }
-                }
-                return specification;
-            }).Concat(
-                wholeSubcategory.ClosedSpecifications.Where(
-                    specification => !closedSpecifications.Contains(specification.Name) && !specification.Deleted
-                ).Select(specification =>
-                {
-                    var newSpecification = new ClosedSpecification
-                    {
-                        Name = specification.Name,
-                        SubcategoryName = subcategory,
-                        CategoryName = category,
-                        MainCategoryName = mainCategory,
-                        ClosedSpecificationValues = specification.Values.Where(value => !value.Deleted).Select(value => new ClosedSpecificationValue
-                        {
-                            Value = value.Value,
-                            SpecificationName = specification.Name,
-                            SubcategoryName = subcategory,
-                            CategoryName = category,
-                            MainCategoryName = mainCategory
-                        }).ToList()
-                    };
-                    if (specification.Filter != null)
-                    {
-                        newSpecification.Filter = new Filter
-                        {
-                            Title = specification.Filter,
-                            ClosedSpecificationName = specification.Name,
-                            CategoryName = category,
-                            SubcategoryName = subcategory,
-                            MainCategoryName = mainCategory
-                        };
-                    }
-
-                    return newSpecification;
-                })
-            ).ToList();
+            closedSpecification.Name = newName;
             return Save();
         }
 
         /// <summary>
-        /// Mark a main category as deleted.
+        /// Update the name of an closed specification value.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the main category to delete.
+        /// <param name="category">
+        /// The name of the associated category.
+        /// </param>
+        /// <param name="specification">
+        /// The name of the associated specification.
+        /// </param>
+        /// <param name="oldName">
+        /// The old name of the closed specification value.
+        /// </param>
+        /// <param name="newName">
+        /// The new name of the closed specification value.
         /// </param>
         /// <returns>
-        /// An <see cref="OkResult"/> if the main category is deleted,
-        /// an <see cref="NotFoundResult"/> if the main category does not exist,
-        /// or an <see cref="ObjectResult"/> with a 500 status code if the deletion fails.
+        /// An <see cref="OkResult"/> if the closed specification value is renamed,
+        /// an <see cref="NotFoundResult"/> if the category does not exist,
+        /// or an <see cref="ObjectResult"/> with a 500 status code if the saving fails.
         /// </returns>
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpDelete("employee/{mainCategory}")]
-        public IActionResult DeleteMainCategory([FromRoute] string mainCategory)
+        [HttpPost("employee/{category}/closed/value/{specification}/{oldName}/{newName}")]
+        public IActionResult UpdateClosedSpecificationValueName(
+            [FromRoute] string category,
+            [FromRoute] string specification,
+            [FromRoute] string oldName,
+            [FromRoute] string newName
+        )
         {
-            var currentMainCategory = _orderContext.MainCategories
-                .Include(mainCategory => mainCategory.Categories)
-                .ThenInclude(category => category.Subcategories)
-                .ThenInclude(subcategory => subcategory.OpenSpecifications)
-                .Include(mainCategory => mainCategory.Categories)
-                .ThenInclude(category => category.Subcategories)
-                .ThenInclude(subcategory => subcategory.ClosedSpecifications)
-                .ThenInclude(subcategory => subcategory.ClosedSpecificationValues)
-                .AsSplitQuery()
-                .FirstOrDefault(currentMainCategory => currentMainCategory.Name == mainCategory);
-            if (currentMainCategory == null)
+            var closedSpecificationValue = _orderContext.ClosedSpecificationValues
+                .FirstOrDefault(value =>
+                    value.ClosedSpecification.Category.Name == category &&
+                    value.ClosedSpecification.Name == specification &&
+                    value.Value == oldName
+                );
+            if (closedSpecificationValue == null)
                 return NotFound();
-            currentMainCategory.Deleted = true;
-            currentMainCategory.Categories = currentMainCategory.Categories.Select(MarkCategoryDeleted).ToList();
+
+            closedSpecificationValue.Value = newName;
+            return Save();
+        }
+
+        /// <summary>
+        /// Add or overwrite an open specification. If it exists, it will be either deleted if the deleted flag is set,
+        /// or it will no longer be marked as deleted. If the specification does not exist, it will be created.
+        /// </summary>
+        /// <param name="category">
+        /// The name of the category to update.
+        /// </param>
+        /// <param name="specification">
+        /// The specification data to use.
+        /// </param>
+        /// <returns>
+        /// An <see cref="OkResult"/> if the category is saved,
+        /// an <see cref="NotFoundResult"/> if the category does not exist,
+        /// or an <see cref="ObjectResult"/> with a 500 status code if the saving fails.
+        /// </returns>
+        [EnableCors(Cors.AllowAdmin)]
+        [Authorize(Policy = Claims.EmployeeClaim)]
+        [Authorize(Policy = Claims.CategoryManageClaim)]
+        [HttpPost("employee/{category}/open")]
+        public IActionResult AddOverwriteOpenSpecification([FromRoute] string category, [FromBody] Models.OpenSpecification specification)
+        {
+            var currentCategory = _orderContext.Categories
+                .Include(category => category.OpenSpecifications)
+                .FirstOrDefault(currentCategory => currentCategory.Name == category);
+            if (currentCategory == null)
+                return NotFound();
+
+            var currentSpecification = currentCategory.OpenSpecifications
+                .FirstOrDefault(currentSpecification => currentSpecification.Name == specification.Name);
+            if (currentSpecification != null)
+            {
+                currentSpecification.Deleted = specification.Deleted;
+                return Save();
+            }
+
+            currentCategory.OpenSpecifications.Add(new OpenSpecification
+            {
+                Name = specification.Name
+            });
+            return Save();
+        }
+
+        /// <summary>
+        /// Update the name of an open specification.
+        /// </summary>
+        /// <param name="category">
+        /// The name of the associated category.
+        /// </param>
+        /// <param name="oldName">
+        /// The old name of the open specification.
+        /// </param>
+        /// <param name="newName">
+        /// The new name of the open specification.
+        /// </param>
+        /// <returns>
+        /// An <see cref="OkResult"/> if the open specification is renamed,
+        /// an <see cref="NotFoundResult"/> if the category does not exist,
+        /// or an <see cref="ObjectResult"/> with a 500 status code if the saving fails.
+        /// </returns>
+        [EnableCors(Cors.AllowAdmin)]
+        [Authorize(Policy = Claims.EmployeeClaim)]
+        [Authorize(Policy = Claims.CategoryManageClaim)]
+        [HttpPost("employee/{category}/open/update/{oldName}/{newName}")]
+        public IActionResult UpdateOpenSpecificationName([FromRoute] string category, [FromRoute] string oldName, [FromRoute] string newName)
+        {
+            var openSpecification = _orderContext.OpenSpecifications
+                .FirstOrDefault(specification => specification.Category.Name == category && specification.Name == oldName);
+            if (openSpecification == null)
+                return NotFound();
+
+            openSpecification.Name = newName;
             return Save();
         }
 
         /// <summary>
         /// Mark a category as deleted.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
         /// The name of the category to delete.
         /// </param>
@@ -492,17 +395,15 @@ namespace Order.API.Controllers.CategoryController
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpDelete("employee/{mainCategory}/{category}")]
-        public IActionResult DeleteCategory([FromRoute] string mainCategory, [FromRoute] string category)
+        [HttpDelete("employee/{category}")]
+        public IActionResult DeleteCategory([FromRoute] string category)
         {
             var currentCategory = _orderContext.Categories
-                .Include(category => category.Subcategories)
-                .ThenInclude(subcategory => subcategory.OpenSpecifications)
-                .Include(category => category.Subcategories)
-                .ThenInclude(subcategory => subcategory.ClosedSpecifications)
-                .ThenInclude(subcategory => subcategory.ClosedSpecificationValues)
+                .Include(category => category.OpenSpecifications)
+                .Include(category => category.ClosedSpecifications)
+                .ThenInclude(category => category.ClosedSpecificationValues)
                 .AsSplitQuery()
-                .FirstOrDefault(currentCategory => currentCategory.MainCategoryName == mainCategory && currentCategory.Name == category);
+                .FirstOrDefault(currentCategory => currentCategory.Name == category);
             if (currentCategory == null)
                 return NotFound();
             MarkCategoryDeleted(currentCategory);
@@ -510,91 +411,24 @@ namespace Order.API.Controllers.CategoryController
         }
 
         /// <summary>
-        /// Mark a subcategory as deleted.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory to delete.
-        /// </param>
-        /// <returns>
-        /// An <see cref="OkResult"/> if the subcategory is deleted,
-        /// an <see cref="NotFoundResult"/> if the subcategory does not exist,
-        /// or an <see cref="ObjectResult"/> with a 500 status code if the deletion fails.
-        /// </returns>
-        [EnableCors(Cors.AllowAdmin)]
-        [Authorize(Policy = Claims.EmployeeClaim)]
-        [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpDelete("employee/{mainCategory}/{category}/{subcategory}")]
-        public IActionResult DeleteSubcategory([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory)
-        {
-            var currentSubcategory = _orderContext.Subcategories
-                .Include(subcategory => subcategory.OpenSpecifications)
-                .Include(subcategory => subcategory.ClosedSpecifications)
-                .ThenInclude(subcategory => subcategory.ClosedSpecificationValues)
-                .AsSplitQuery()
-                .FirstOrDefault(currentSubcategory => currentSubcategory.Name == subcategory &&
-                                                      currentSubcategory.CategoryName == category &&
-                                                      currentSubcategory.MainCategoryName == mainCategory);
-            if (currentSubcategory == null)
-                return NotFound();
-            MarkSubcategoryDeleted(currentSubcategory);
-            return Save();
-        }
-
-        /// <summary>
-        /// Restore a deleted main category.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
-        /// <returns>
-        /// An <see cref="OkResult"/> if the subcategory is restored,
-        /// an <see cref="NotFoundResult"/> if the subcategory does not exist,
-        /// or an <see cref="ObjectResult"/> with a 500 status code if the deletion fails.
-        /// </returns>
-        [EnableCors(Cors.AllowAdmin)]
-        [Authorize(Policy = Claims.EmployeeClaim)]
-        [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpPost("employee/restore/{mainCategory}")]
-        public IActionResult RestoreMainCategory([FromRoute] string mainCategory)
-        {
-            var currentMainCategory = _orderContext.MainCategories
-                .FirstOrDefault(currentMainCategory => currentMainCategory.Name == mainCategory);
-
-            if (currentMainCategory == null)
-                return NotFound();
-            currentMainCategory.Deleted = false;
-            return Save();
-        }
-
-        /// <summary>
         /// Restore a deleted category.
         /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
         /// <param name="category">
-        /// The name of the associated category.
+        /// The name of the category to delete.
         /// </param>
         /// <returns>
-        /// An <see cref="OkResult"/> if the subcategory is restored,
-        /// an <see cref="NotFoundResult"/> if the subcategory does not exist,
+        /// An <see cref="OkResult"/> if the category is restored,
+        /// an <see cref="NotFoundResult"/> if the category does not exist,
         /// or an <see cref="ObjectResult"/> with a 500 status code if the deletion fails.
         /// </returns>
         [EnableCors(Cors.AllowAdmin)]
         [Authorize(Policy = Claims.EmployeeClaim)]
         [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpPost("employee/restore/{mainCategory}/{category}")]
-        public IActionResult RestoreCategory([FromRoute] string mainCategory, [FromRoute] string category)
+        [HttpPost("employee/{category}/restore")]
+        public IActionResult RestoreCategory([FromRoute] string category)
         {
             var currentCategory = _orderContext.Categories
-                .FirstOrDefault(currentCategory => currentCategory.MainCategoryName == mainCategory &&
-                                                   currentCategory.Name == category);
+                .FirstOrDefault(currentCategory => currentCategory.Name == category);
 
             if (currentCategory == null)
                 return NotFound();
@@ -603,41 +437,7 @@ namespace Order.API.Controllers.CategoryController
         }
 
         /// <summary>
-        /// Restore a deleted subcategory.
-        /// </summary>
-        /// <param name="mainCategory">
-        /// The name of the associated main category.
-        /// </param>
-        /// <param name="category">
-        /// The name of the associated category.
-        /// </param>
-        /// <param name="subcategory">
-        /// The name of the subcategory to delete.
-        /// </param>
-        /// <returns>
-        /// An <see cref="OkResult"/> if the subcategory is restored,
-        /// an <see cref="NotFoundResult"/> if the subcategory does not exist,
-        /// or an <see cref="ObjectResult"/> with a 500 status code if the deletion fails.
-        /// </returns>
-        [EnableCors(Cors.AllowAdmin)]
-        [Authorize(Policy = Claims.EmployeeClaim)]
-        [Authorize(Policy = Claims.CategoryManageClaim)]
-        [HttpPost("employee/restore/{mainCategory}/{category}/{subcategory}")]
-        public IActionResult RestoreSubcategory([FromRoute] string mainCategory, [FromRoute] string category, [FromRoute] string subcategory)
-        {
-            var currentSubcategory = _orderContext.Subcategories
-                .FirstOrDefault(currentSubcategory => currentSubcategory.MainCategoryName == mainCategory &&
-                                                   currentSubcategory.CategoryName == category &&
-                                                   currentSubcategory.Name == subcategory);
-
-            if (currentSubcategory == null)
-                return NotFound();
-            currentSubcategory.Deleted = false;
-            return Save();
-        }
-
-        /// <summary>
-        /// Mark a category and its subcategories as deleted.
+        /// Mark a category, its specification, and filters as deleted.
         /// </summary>
         /// <param name="category">
         /// The category to delete.
@@ -648,28 +448,12 @@ namespace Order.API.Controllers.CategoryController
         private Category MarkCategoryDeleted(Category category)
         {
             category.Deleted = true;
-            category.Subcategories = category.Subcategories.Select(MarkSubcategoryDeleted).ToList();
-            return category;
-        }
-
-        /// <summary>
-        /// Mark a subcategory, its specification, and filters as deleted.
-        /// </summary>
-        /// <param name="subcategory">
-        /// The subcategory to delete.
-        /// </param>
-        /// <returns>
-        /// The new subcategory.
-        /// </returns>
-        private Subcategory MarkSubcategoryDeleted(Subcategory subcategory)
-        {
-            subcategory.Deleted = true;
-            subcategory.OpenSpecifications = subcategory.OpenSpecifications.Select(specification =>
+            category.OpenSpecifications = category.OpenSpecifications.Select(specification =>
             {
                 specification.Deleted = true;
                 return specification;
             }).ToList();
-            subcategory.ClosedSpecifications = subcategory.ClosedSpecifications.Select(specification =>
+            category.ClosedSpecifications = category.ClosedSpecifications.Select(specification =>
             {
                 specification.Deleted = true;
                 specification.ClosedSpecificationValues = specification.ClosedSpecificationValues.Select(specificationValue =>
@@ -679,7 +463,7 @@ namespace Order.API.Controllers.CategoryController
                 }).ToList();
                 return specification;
             }).ToList();
-            return subcategory;
+            return category;
         }
     }
 }

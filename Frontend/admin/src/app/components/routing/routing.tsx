@@ -12,6 +12,7 @@ import { ProtectedRoute } from "../protected-route/protected-route";
 import { UnprotectedRoute } from "../unprotected-route/unprotected-route";
 import { UnprotectedContent } from "../../layout/content/unprotected-content.tsx";
 import { Verify } from "../../pages/verify/verify.tsx";
+import { Categories } from "../../pages/category/categories.tsx";
 
 export const Routing = () => {
     return (
@@ -26,6 +27,7 @@ export const Routing = () => {
                 <Route path="register" element={<Register/>}/>
                 <Route path="logout" element={<Logout/>}/>
                 <Route path="account" element={<UpdateAccount/>}/>
+                <Route path="categories" element={<Categories/>}/>
             </Route>
             <Route path="*" element={<NotFound/>}/>
         </Routes>

@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MDBValidation } from "mdb-react-ui-kit";
-import {FormState, initializeForm, submitValidate} from "../../components/form/types";
-import {defaultEmailError, emailRegex} from "../../utils/constant";
+import { MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalHeader, MDBModalTitle, MDBValidation } from "mdb-react-ui-kit";
+import { FormState, initializeForm, submitValidate } from "../../components/form/types";
+import { defaultEmailError, emailRegex } from "../../utils/constant";
 import { ForgotPasswordError, isForgotPasswordError, useForgotPassword } from "../../hooks/APIHook";
 import { Input } from "../../components/form/input/input";
 import { SubmitButton } from "../../components/form/submit-button/submit-button";
@@ -69,13 +69,13 @@ export const ForgotPassword = () => {
         <div
          className="d-flex align-items-center justify-content-center stripes"
          style={{height: "100vh", width: "100vw"}}>
-            <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">Change Password</h5>
-                        </div>
-                        <div className="modal-body">
+            <MDBModal open={true} onClose={() => {}}>
+                <MDBModalDialog>
+                    <MDBModalContent>
+                        <MDBModalHeader>
+                            <MDBModalTitle>Change Password</MDBModalTitle>
+                        </MDBModalHeader>
+                        <MDBModalBody>
                             <MDBValidation isValidated={true}>
                                 <Input
                                  name="email"
@@ -89,10 +89,10 @@ export const ForgotPassword = () => {
                                  state={state}
                                  text="Change Password"/>
                             </MDBValidation>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        </MDBModalBody>
+                    </MDBModalContent>
+                </MDBModalDialog>
+            </MDBModal>
         </div>
     );
 };
